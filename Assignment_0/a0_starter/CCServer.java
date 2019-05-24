@@ -23,7 +23,7 @@ class CCServer {
 				DataInputStream din = new DataInputStream(csock.getInputStream());
 				int respDataLen = din.readInt();
 				System.out.println("received response header, data payload has length " + respDataLen);
-				bytes = new byte[respDataLen];
+				byte[] bytes = new byte[respDataLen];
 				din.readFully(bytes);
 				long endTime = System.currentTimeMillis();
 				System.out.println(
