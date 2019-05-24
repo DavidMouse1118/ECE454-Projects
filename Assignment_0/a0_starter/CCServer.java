@@ -26,7 +26,7 @@ class CCServer {
 				PrintWriter writer = new PrintWriter(csock.getOutputStream(), true);
 
 				String line = null;
-				while ((line = reader.readLine()) != null) {
+				while ((line = reader.read()) != -1) {
 					// System.out.println(line);
 					// process line to integers
 					if (line == "") {
