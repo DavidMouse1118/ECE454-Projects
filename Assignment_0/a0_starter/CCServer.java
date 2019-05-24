@@ -27,36 +27,32 @@ class CCServer {
 				din.readFully(bytes);
 				String output = new String(bytes, StandardCharsets.UTF_8);
 
-				System.out.println(output);
+				ConnectingGraph graph = new ConnectingGraph();
+				System.out.println("Connecting graph has been initialized.");
 
-				
+				BufferedReader reader = new BufferedReader(output);
 
-				// ConnectingGraph graph = new ConnectingGraph();
-				// System.out.println("Connecting graph has been initialized.");
+				PrintWriter writer = new PrintWriter(csock.getOutputStream(), true);
 
-				// BufferedReader reader = new BufferedReader(new InputStreamReader(csock.getInputStream(), "UTF-8"));
+				String line = null;
+				while ((line = reader.readLine()) != null) {
+					// System.out.println(line);
+					// process line to integers
+					String[] nodes = line.split("\\s");
+					int node0 = Integer.parseInt(nodes[0].trim());
+					int node1 = Integer.parseInt(nodes[1].trim());
 
-				// PrintWriter writer = new PrintWriter(csock.getOutputStream(), true);
+					graph.connect(node0, node1);
+					System.out.println(line);
+				}
 
-				// String line = null;
-				// while ((line = reader.readLine()) != null) {
-				// 	// System.out.println(line);
-				// 	// process line to integers
-				// 	String[] nodes = line.split("\\s");
-				// 	int node0 = Integer.parseInt(nodes[0].trim());
-				// 	int node1 = Integer.parseInt(nodes[1].trim());
+				System.out.println(123);
+				Map<Integer, Integer> node_to_father = graph.getFatherRelation();
 
-				// 	graph.connect(node0, node1);
-				// 	System.out.println(line);
-				// }
-
-				// System.out.println(123);
-				// Map<Integer, Integer> node_to_father = graph.getFatherRelation();
-
-				// System.out.println(node_to_father);
-				// for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
-				// 	System.out.println(entry.getKey() + " -> " + entry.getValue());
-				// }
+				System.out.println(node_to_father);
+				for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
+					System.out.println(entry.getKey() + " -> " + entry.getValue());
+				}
 
 
 
