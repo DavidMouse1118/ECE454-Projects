@@ -16,7 +16,7 @@ class CCServer {
 		while (true) {
 			try {
 				Socket csock = ssock.accept();
-				System.out.println(csock.header);
+				System.out.println(csock.header)
 				System.out.println("Accepted connections: " + csock);
 
 				ConnectingGraph graph = new ConnectingGraph();
@@ -27,12 +27,9 @@ class CCServer {
 				PrintWriter writer = new PrintWriter(csock.getOutputStream(), true);
 
 				String line = null;
-				while ((line = reader.read()) != null) {
+				while ((line = reader.readLine()) != null) {
 					// System.out.println(line);
 					// process line to integers
-					if (line == "") {
-						break;
-					}
 					String[] nodes = line.split("\\s");
 					int node0 = Integer.parseInt(nodes[0].trim());
 					int node1 = Integer.parseInt(nodes[1].trim());
