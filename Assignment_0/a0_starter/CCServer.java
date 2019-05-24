@@ -31,6 +31,7 @@ class CCServer {
 				ConnectingGraph graph = new ConnectingGraph();
 				System.out.println("Connecting graph has been initialized.");
 
+				// Read edges and union
 				Scanner scanner = new Scanner(output);
 				while (scanner.hasNextLine()) {
 					String line = scanner.nextLine();
@@ -42,6 +43,7 @@ class CCServer {
 				}
 				scanner.close();
 
+				// output connected components
 				Map<Integer, Integer> node_to_father = graph.getFatherRelation();
 				String result = "";
 				
