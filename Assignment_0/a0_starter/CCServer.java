@@ -49,7 +49,7 @@ class CCServer {
 					result += entry.getKey() + " " + entry.getValue() + "\n";
 				}
 
-				System.out.println(result);
+				// System.out.println(result);
 
 				DataOutputStream dout = new DataOutputStream(csock.getOutputStream());
 				bytes = result.getBytes("UTF-8");
