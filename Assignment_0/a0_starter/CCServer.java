@@ -16,19 +16,28 @@ class CCServer {
 				Socket csock = ssock.accept();
 				System.out.println("Accepted connections: " + csock);
 
+				ConnectingGraph graph = new ConnectingGraph();
+				System.out.println("Connecting graph has been initialized.");
+
 				BufferedReader reader = new BufferedReader(new InputStreamReader(csock.getInputStream()));
 
 				PrintWriter writer = new PrintWriter(csock.getOutputStream(), true);
 
 				String line = null;
 				while ((line = reader.readLine()) != null) {
-					System.out.println(line);
+					// System.out.println(line);
+					// process line to integers
+					String[] nodes = line.split("\\s");
+					System.out.println(nodes[0]);
+
 				}
 				// String line = reader.readLine();
 				// System.out.println("Read data: " + line);
 
 				// writer.println(line.toUpperCase());
 				// csock.close();
+
+
 				/*
 				 * YOUR CODE GOES HERE - accept connection from server socket - read requests
 				 * from connection repeatedly - for each request, compute an output and send a
