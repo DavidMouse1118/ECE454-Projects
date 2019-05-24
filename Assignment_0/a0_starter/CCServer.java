@@ -26,7 +26,7 @@ class CCServer {
 				}
 
 				writer.println(line.toUpperCase());
-				csock.close();
+				// csock.close();
 				/*
 				 * YOUR CODE GOES HERE - accept connection from server socket - read requests
 				 * from connection repeatedly - for each request, compute an output and send a
