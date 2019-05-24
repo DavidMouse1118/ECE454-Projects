@@ -36,10 +36,11 @@ class ConnectingGraph {
             int heightB = height.getOrDefault(B, 1);
             if (heightA > heightB) {
                 father.put(B, A);
-                height.put(A, heightA + heightB);
+            } else if (heightA < heightB) {
+                father.put(A, B);
             } else {
                 father.put(A, B);
-                height.put(B, heightA + heightB);
+                height.put(B, heightB + 1);
             }
         }
     }
