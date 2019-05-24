@@ -58,15 +58,6 @@ class CCServer {
 				dout.write(bytes);
 				dout.flush();
 				System.out.println("sent result header and " + bytes.length + " bytes of payload data to Client");
-
-
-				/*
-				 * YOUR CODE GOES HERE - accept connection from server socket - read requests
-				 * from connection repeatedly - for each request, compute an output and send a
-				 * response - each message has a 4-byte header followed by a payload - the
-				 * header is the length of the payload (signed, two's complement, big-endian) -
-				 * the payload is a string (UTF-8, big-endian)
-				 */
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
