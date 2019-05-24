@@ -27,10 +27,11 @@ class CCServer {
 				byte[] bytes = new byte[respDataLen];
 				din.readFully(bytes);
 				
-				for(byte b : bytes) {
-					char c = (char) b;
-					System.out.println(c);
-				}
+				int i = 0;
+				while (i <= bytes.length) {
+					System.out.println(bytes[i]);
+					i++;
+				} 
 				// String output = new String(bytes, StandardCharsets.UTF_8);
 
 				// // Initialing connecting graph
