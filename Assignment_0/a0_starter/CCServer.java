@@ -11,11 +11,10 @@ class CCServer {
 
 		ServerSocket ssock = new ServerSocket(port);
 		System.out.println("listening on port " + port);
+		Socket csock = ssock.accept();
+		System.out.println("Accepted connections: " + csock);
 		while (true) {
 			try {
-				Socket csock = ssock.accept();
-				System.out.println("Accepted connections: " + csock);
-
 				BufferedReader reader = new BufferedReader(new InputStreamReader(csock.getInputStream()));
 
 				PrintWriter writer = new PrintWriter(csock.getOutputStream(), true);
