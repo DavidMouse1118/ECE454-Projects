@@ -81,6 +81,7 @@ class ConnectingGraph2 {
 
             graph.union(node0, node1);
         }
+        System.out.println(graph.getFatherRelation());
         scanner.close();
     }
 }
