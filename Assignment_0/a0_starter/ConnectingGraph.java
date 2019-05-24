@@ -36,7 +36,7 @@ class ConnectingGraph {
         int B = find(b);
         
         if (A != B) {
-            father.put(A, B);
+            father.put(B, A);
         }
     }
 
