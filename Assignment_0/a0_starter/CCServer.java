@@ -64,6 +64,8 @@ class CCServer {
 					result += entry.getKey() + " " + entry.getValue() + "\n";
 				}
 
+				System.out.println(node_to_father);
+
 				// Write result to the client
 				DataOutputStream dout = new DataOutputStream(csock.getOutputStream());
 				bytes = result.getBytes("UTF-8");
