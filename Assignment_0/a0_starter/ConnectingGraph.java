@@ -1,63 +1,53 @@
 import java.util.*;
 
+// class to represent Subset 
+class subset {
+    int parent;
+    int rank;
+}
+
 class ConnectingGraph {
-    private HashMap<Integer, Integer> father = null;
-    private HashMap<Integer, Integer> height = null;
+    private HashMap<Integer, subset> nodeToSubset = null;
 
     public ConnectingGraph() {
-        father = new HashMap<Integer, Integer>();
-        height = new HashMap<Integer, Integer>();
+        nodeToSubset = new HashMap<Integer, subset>();
     }
 
     public int find(int x) {
-        int j, fx;
-        j = x;
+        if (nodeToSubset.get(x) == null) {
+            subset ss = new subset(); 
+            ss.parent = x;
+            ss.rank = 0;
+            nodeToSubset.put(x, ss);
+        }
 
-        if (father.containsKey(j) == false) {
-            father.put(j, j);
-            return j;
+        if (nodeToSubset.get(x).parent != x) {
+            nodeToSubset.get(x).parent = find(nodeToSubset.get(x).parent);
         }
-        
-        // find x's root father
-        while (father.get(j) != j) {
-            j = father.get(j);
-        }
-        
-        // path compression
-        // while (x != j) {
-        //     fx = father.get(x);
-        //     father.put(x, j);
-        //     x = fx;
-        // }
-        
-        return j;
+        return nodeToSubset.get(x).parent;
     }
 
-    public void union(int a, int b) {
-        int A = find(a);
-        int B = find(b);
-        
-        if (A != B) {
-            int heightA = height.getOrDefault(A, 0);
-            int heightB = height.getOrDefault(B, 0);
-            if (heightA > heightB) {
-                father.put(B, A);
-            } else if (heightA < heightB) {
-                father.put(A, B);
-            } else {
-                father.put(A, B);
-                height.put(B, heightB + 1);
-            }
+    public void union(int x, int y) {
+        int xroot = find(x);
+        int yroot = find(y);
+
+        if (nodeToSubset.get(xroot).rank < nodeToSubset.get(yroot).rank)
+            nodeToSubset.get(xroot).parent = yroot;
+        else if (nodeToSubset.get(yroot).rank < nodeToSubset.get(xroot).rank)
+            nodeToSubset.get(yroot).parent = xroot;
+        else {
+            nodeToSubset.get(xroot).parent = yroot;
+            nodeToSubset.get(yroot).rank++;
         }
     }
 
-    public HashMap<Integer, Integer> getFatherRelation() {
+    public HashMap<Integer, subset> getFatherRelation() {
         // Find again for each node
-        for (Map.Entry<Integer, Integer> entry : father.entrySet()) {
-            int new_value = find(entry.getKey());
-            father.put(entry.getKey(), new_value);
-        }
-        
-        return father;
+        // for (Map.Entry<Integer, Integer> entry : father.entrySet()) {
+        //     int new_value = find(entry.getKey());
+        //     father.put(entry.getKey(), new_value);
+        // }
+
+        return nodeToSubset;
     }
 }
