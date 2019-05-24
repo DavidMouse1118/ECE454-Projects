@@ -1,5 +1,4 @@
 import java.io.*;
-import java.nio.charset.*;
 import java.net.*;
 
 class CCServer {
@@ -20,7 +19,7 @@ class CCServer {
 				ConnectingGraph graph = new ConnectingGraph();
 				System.out.println("Connecting graph has been initialized.");
 
-				BufferedReader reader = new BufferedReader(new InputStreamReader(csock.getInputStream(), StandardCharsets.UTF_8));
+				BufferedReader reader = new BufferedReader(new InputStreamReader(csock.getInputStream(), "UTF-8"));
 
 				PrintWriter writer = new PrintWriter(csock.getOutputStream(), true);
 
