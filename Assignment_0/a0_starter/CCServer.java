@@ -28,8 +28,8 @@ class CCServer {
 					// System.out.println(line);
 					// process line to integers
 					String[] nodes = line.split("\\s");
-					int node_0 = Integer.parseInt(nodes[0]);
-					int node_1 = Integer.parseInt(nodes[1]);
+					int node_0 = Integer.parseInt(nodes[0].trim());
+					int node_1 = Integer.parseInt(nodes[1].trim());
 					System.out.println(node_0);
 
 					graph.connect(node_0, node_1);
