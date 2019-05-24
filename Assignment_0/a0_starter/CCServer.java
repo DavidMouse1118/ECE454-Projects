@@ -26,7 +26,12 @@ class CCServer {
 				System.out.println("received response header, data payload has length " + respDataLen);
 				byte[] bytes = new byte[respDataLen];
 				din.readFully(bytes);
+
+				// Initialing connecting graph
+				ConnectingGraph graph = new ConnectingGraph();
+				System.out.println("Connecting graph has been initialized.");
 				
+				// Read node from file using byte, and connect two nodes
 				int i = 0;
 				while (i < bytes.length) {
 					int node1 = 0;
@@ -47,6 +52,8 @@ class CCServer {
 					}
 					System.out.println(node2);
 					i++;
+
+					graph.union(node1, node2);
 				} 
 				// String output = new String(bytes, StandardCharsets.UTF_8);
 
@@ -69,22 +76,22 @@ class CCServer {
 				// }
 				// scanner.close();
 
-				// // output connected components
-				// Map<Integer, Integer> node_to_father = graph.getFatherRelation();
-				// String result = "";
+				// output connected components
+				Map<Integer, Integer> node_to_father = graph.getFatherRelation();
+				String result = "";
 				
-				// for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
-				// 	result += entry.getKey() + " " + entry.getValue() + "\n";
-				// }
+				for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
+					result += entry.getKey() + " " + entry.getValue() + "\n";
+				}
 
-				// // System.out.println(result);
+				// System.out.println(result);
 
-				// DataOutputStream dout = new DataOutputStream(csock.getOutputStream());
-				// bytes = result.getBytes("UTF-8");
-				// dout.writeInt(bytes.length);
-				// dout.write(bytes);
-				// dout.flush();
-				// System.out.println("sent result header and " + bytes.length + " bytes of payload data to Client");
+				DataOutputStream dout = new DataOutputStream(csock.getOutputStream());
+				bytes = result.getBytes("UTF-8");
+				dout.writeInt(bytes.length);
+				dout.write(bytes);
+				dout.flush();
+				System.out.println("sent result header and " + bytes.length + " bytes of payload data to Client");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
