@@ -41,7 +41,7 @@ class CCServer {
 						i++;
 					}
 
-					System.out.println(node1);
+					// System.out.println(node1);
 
 					i++;
 					int node2 = 0;
@@ -50,7 +50,7 @@ class CCServer {
 						node2 = node2 * 10 + Character.getNumericValue(c);
 						i++;
 					}
-					System.out.println(node2);
+					// System.out.println(node2);
 					i++;
 
 					graph.union(node1, node2);
@@ -63,8 +63,6 @@ class CCServer {
 				for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
 					result += entry.getKey() + " " + entry.getValue() + "\n";
 				}
-
-				System.out.println(node_to_father);
 
 				// Write result to the client
 				DataOutputStream dout = new DataOutputStream(csock.getOutputStream());

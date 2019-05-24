@@ -13,8 +13,6 @@ class ConnectingGraph {
         int j, fx;
         j = x;
 
-        System.out.println("cal");
-        
         if (father.containsKey(j) == false) {
             father.put(j, j);
             return j;
@@ -60,7 +58,6 @@ class ConnectingGraph {
     }
 
     public HashMap<Integer, Integer> getFatherRelation() {
-        System.out.println(father);
         // Find again for each node
         for (Map.Entry<Integer, Integer> entry : father.entrySet()) {
             int new_value = find(entry.getKey());
