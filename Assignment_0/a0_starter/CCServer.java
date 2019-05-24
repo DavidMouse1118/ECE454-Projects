@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 class CCServer {
-    public int find(HashMap<Integer, Integer> father, int x) {
+    public static int find(HashMap<Integer, Integer> father, int x) {
         int j, fx;
         j = x;
 
@@ -31,7 +31,7 @@ class CCServer {
         return j;
     }
 
-    public void union(HashMap<Integer, Integer> father, int a, int b) {
+    public static void union(HashMap<Integer, Integer> father, int a, int b) {
         int A = find(father, a);
         int B = find(father, b);
         
@@ -39,6 +39,7 @@ class CCServer {
             father.put(A, B);
         }
     }
+
 	public static void main(String args[]) throws Exception {
 		if (args.length != 1) {
 			System.out.println("usage: java CCServer port");
@@ -78,7 +79,7 @@ class CCServer {
 				String result = "";
 				
 				for (Map.Entry<Integer, Integer> entry : father.entrySet()) {
-					root = find(father, entry.getKey());
+					int root = find(father, entry.getKey());
 					result += entry.getKey() + " " + root + "\n";
 				}
 
