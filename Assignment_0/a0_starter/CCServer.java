@@ -31,19 +31,19 @@ class CCServer {
 				ConnectingGraph graph = new ConnectingGraph();
 				System.out.println("Connecting graph has been initialized.");
 
-				// Scanner scanner = new Scanner(output);
-				// while (scanner.hasNextLine()) {
-				// 	String line = scanner.nextLine();
-				// 	String[] nodes = line.split("\\s");
-				// 	int node0 = Integer.parseInt(nodes[0].trim());
-				// 	int node1 = Integer.parseInt(nodes[1].trim());
+				Scanner scanner = new Scanner(output);
+				while (scanner.hasNextLine()) {
+					String line = scanner.nextLine();
+					String[] nodes = line.split("\\s");
+					int node0 = Integer.parseInt(nodes[0].trim());
+					int node1 = Integer.parseInt(nodes[1].trim());
 
-				// 	graph.connect(node0, node1);
-				// }
-				// scanner.close();
+					graph.connect(node0, node1);
+				}
+				scanner.close();
 
 				// Map<Integer, Integer> node_to_father = graph.getFatherRelation();
-				String result = output;
+				String result = "";
 				
 				// for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
 				// 	result += entry.getKey() + " " + entry.getValue() + "\n";
