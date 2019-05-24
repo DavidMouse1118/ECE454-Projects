@@ -6,11 +6,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-class ConnectingGraph {
+class ConnectingGraph2 {
     private HashMap<Integer, Integer> father = null;
     // private HashMap<Integer, Integer> height = null;
 
-    public ConnectingGraph() {
+    public ConnectingGraph2() {
         father = new HashMap<Integer, Integer>();
         // height = new HashMap<Integer, Integer>();
     }
@@ -71,7 +71,7 @@ class ConnectingGraph {
     public static void main(String[] args) throws FileNotFoundException {
         File file=new File("/Users/zhidongzhang/workspace/ECE454-Project/Assignment-1/Profiling/medium.txt");
         Scanner scanner = new Scanner(file);
-        ConnectingGraph graph = new ConnectingGraph();
+        ConnectingGraph2 graph = new ConnectingGraph2();
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
             String[] nodes = line.split("\\s");
