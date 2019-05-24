@@ -69,7 +69,7 @@ class ConnectingGraph2 {
 
 
     public static void main(String[] args) throws FileNotFoundException {
-        File file=new File("/Users/zhidongzhang/workspace/ECE454-Project/Assignment-1/Profiling/medium.txt");
+        File file=new File("Assignment_0/a0_starter/sample_input/huge.txt");
         Scanner scanner = new Scanner(file);
         ConnectingGraph2 graph = new ConnectingGraph2();
         while (scanner.hasNextLine()) {
