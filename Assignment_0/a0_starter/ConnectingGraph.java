@@ -42,7 +42,7 @@ class ConnectingGraph {
 
     public HashMap<Integer, Integer> getFatherRelation() {
         for (Map.Entry<Integer, Integer> entry : father.entrySet()) {
-            new_value = find(entry.getKey());
+            int new_value = find(entry.getKey());
             father.put(entry.getKey(), new_value);
         }
         
