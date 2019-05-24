@@ -26,39 +26,48 @@ class CCServer {
 				System.out.println("received response header, data payload has length " + respDataLen);
 				byte[] bytes = new byte[respDataLen];
 				din.readFully(bytes);
-				String output = new String(bytes, StandardCharsets.UTF_8);
-
-				ConnectingGraph graph = new ConnectingGraph();
-				System.out.println("Connecting graph has been initialized.");
-
-				// Read edges and union
-				Scanner scanner = new Scanner(output);
-				while (scanner.hasNextLine()) {
-					String line = scanner.nextLine();
-					String[] nodes = line.split("\\s");
-					int node0 = Integer.parseInt(nodes[0].trim());
-					int node1 = Integer.parseInt(nodes[1].trim());
-
-					graph.union(node0, node1);
-				}
-				scanner.close();
-
-				// output connected components
-				Map<Integer, Integer> node_to_father = graph.getFatherRelation();
-				String result = "";
 				
-				for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
-					result += entry.getKey() + " " + entry.getValue() + "\n";
+				for(byte b : bytes) {
+					int c = (int) b;
+					System.out.println(c);
 				}
+				// String output = new String(bytes, StandardCharsets.UTF_8);
 
-				// System.out.println(result);
+				// // Initialing connecting graph
+				// ConnectingGraph graph = new ConnectingGraph();
+				// System.out.println("Connecting graph has been initialized.");
 
-				DataOutputStream dout = new DataOutputStream(csock.getOutputStream());
-				bytes = result.getBytes("UTF-8");
-				dout.writeInt(bytes.length);
-				dout.write(bytes);
-				dout.flush();
-				System.out.println("sent result header and " + bytes.length + " bytes of payload data to Client");
+				// // Read the output byte by byte
+
+
+				// // Read edges and union
+				// Scanner scanner = new Scanner(output);
+				// while (scanner.hasNextLine()) {
+				// 	String line = scanner.nextLine();
+				// 	String[] nodes = line.split("\\s");
+				// 	int node0 = Integer.parseInt(nodes[0].trim());
+				// 	int node1 = Integer.parseInt(nodes[1].trim());
+
+				// 	graph.union(node0, node1);
+				// }
+				// scanner.close();
+
+				// // output connected components
+				// Map<Integer, Integer> node_to_father = graph.getFatherRelation();
+				// String result = "";
+				
+				// for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
+				// 	result += entry.getKey() + " " + entry.getValue() + "\n";
+				// }
+
+				// // System.out.println(result);
+
+				// DataOutputStream dout = new DataOutputStream(csock.getOutputStream());
+				// bytes = result.getBytes("UTF-8");
+				// dout.writeInt(bytes.length);
+				// dout.write(bytes);
+				// dout.flush();
+				// System.out.println("sent result header and " + bytes.length + " bytes of payload data to Client");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
