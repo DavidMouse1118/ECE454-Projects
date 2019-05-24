@@ -28,7 +28,7 @@ class CCServer {
 				din.readFully(bytes);
 				
 				for(byte b : bytes) {
-					int c = (int) b;
+					char c = (char) b;
 					System.out.println(c);
 				}
 				// String output = new String(bytes, StandardCharsets.UTF_8);
