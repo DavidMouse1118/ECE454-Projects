@@ -10,12 +10,16 @@ class ConnectingGraph {
     }
 
     public int find(int x) {
-        if (father[x] == x) {
+        if (father.getOrDefault(x, x) == x) {
             return x;
         }
 
         // path compression
-        return father[x] = find(father[x]);
+        root_father = find(father.get(x));
+
+        father.put(x, root_father);
+
+        return root_father;
     }
 
     public void connect(int a, int b) {
