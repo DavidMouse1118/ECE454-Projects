@@ -36,16 +36,7 @@ class CCServer {
         int B = find(father, b);
         
         if (A != B) {
-            // int heightA = height.getOrDefault(A, 0);
-            // int heightB = height.getOrDefault(B, 0);
-            // if (heightA > heightB) {
-            //     father.put(B, A);
-            // } else if (heightA < heightB) {
-            //     father.put(A, B);
-            // } else {
-                father.put(A, B);
-            //     height.put(B, heightB + 1);
-            // }
+            father.put(A, B);
         }
     }
 	public static void main(String args[]) throws Exception {
@@ -69,7 +60,7 @@ class CCServer {
 				din.readFully(bytes);
 				String output = new String(bytes, StandardCharsets.UTF_8);
 
-				private HashMap<Integer, Integer> father = new HashMap<Integer, Integer>();;
+				HashMap<Integer, Integer> father = new HashMap<Integer, Integer>();
 				System.out.println("Connecting graph has been initialized.");
 
 				// Read edges and union
@@ -84,8 +75,6 @@ class CCServer {
 				}
 				scanner.close();
 
-				// output connected components
-				// Map<Integer, Integer> node_to_father = graph.getFatherRelation();
 				String result = "";
 				
 				for (Map.Entry<Integer, Integer> entry : father.entrySet()) {
