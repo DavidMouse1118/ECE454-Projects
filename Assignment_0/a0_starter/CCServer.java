@@ -38,7 +38,7 @@ class CCServer {
 					int node0 = Integer.parseInt(nodes[0].trim());
 					int node1 = Integer.parseInt(nodes[1].trim());
 
-					graph.connect(node0, node1);
+					// graph.connect(node0, node1);
 				}
 				scanner.close();
 
