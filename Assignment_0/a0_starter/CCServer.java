@@ -43,7 +43,6 @@ class CCServer {
 				}
 				scanner.close();
 
-				PrintWriter writer = new PrintWriter(csock.getOutputStream(), true);
 				Map<Integer, Integer> node_to_father = graph.getFatherRelation();
 				String result = "";
 				
@@ -53,8 +52,12 @@ class CCServer {
 
 				System.out.println(result);
 
-				// writer.println(line.toUpperCase());
-				// csock.close();
+				DataOutputStream dout = new DataOutputStream(csock.getOutputStream());
+				byte[] bytes = result.getBytes("UTF-8");
+				dout.writeInt(bytes.length);
+				dout.write(bytes);
+				dout.flush();
+				System.out.println("sent result header and " + bytes.length + " bytes of payload data to Client");
 
 
 				/*
