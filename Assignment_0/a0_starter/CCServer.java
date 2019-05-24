@@ -34,6 +34,7 @@ class CCServer {
 					int node1 = Integer.parseInt(nodes[1].trim());
 
 					graph.connect(node0, node1);
+					System.out.println(line)
 				}
 
 				System.out.println(123);
