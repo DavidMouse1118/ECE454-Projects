@@ -13,6 +13,8 @@ class ConnectingGraph {
         int j, fx;
         j = x;
 
+        System.out.println("cal");
+        
         if (father.containsKey(j) == false) {
             father.put(j, j);
             return j;
@@ -21,6 +23,7 @@ class ConnectingGraph {
         if (father.get(x) == x) {
             return x;
         }
+
         return find(father.get(x));
         
         // // find x's root father
