@@ -21,9 +21,8 @@ class CCServer {
 				PrintWriter writer = new PrintWriter(csock.getOutputStream(), true);
 
 				String line = null;
-				while ((line = reader.readLine()) != null) {
-					System.out.println(line);
-				}
+				System.out.println(line);
+			
 
 				//writer.println(line.toUpperCase());
 				// csock.close();
