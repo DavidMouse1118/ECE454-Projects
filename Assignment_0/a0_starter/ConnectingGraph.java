@@ -2,33 +2,20 @@ import java.util.*;
 
 class ConnectingGraph {
     private HashMap<Integer, Integer> father = null;
+    private HashMap<Integer, Integer> height = null;
 
     public ConnectingGraph() {
         father = new HashMap<Integer, Integer>();
+        height = new HashMap<Integer, Integer>();
     }
 
     public int find(int x) {
-        int j, fx;
-        j = x;
+        if (father[x] == x) {
+            return x
+        }
 
-        if (father.containsKey(j) == false) {
-            father.put(j, j);
-            return j;
-        }
-        
-        // find x 的 big brother
-        while (father.get(j) != j) {
-            j = father.get(j);
-        }
-        
         // path compression
-        while (x != j) {
-            fx = father.get(x);
-            father.put(x, j);
-            x = fx;
-        }
-        
-        return j;
+        return father[x] = find(father[x])
     }
 
     public void connect(int a, int b) {
@@ -36,15 +23,19 @@ class ConnectingGraph {
         int B = find(b);
         
         if (A != B) {
-            father.put(A, B);
+            if (height.getOrDefault(A, 1) > height.getOrDefault(B, 1)) {
+                father.put(B, A);
+            } else {
+                father.put(A, B);
+            }
         }
     }
 
     public HashMap<Integer, Integer> getFatherRelation() {
-        // for (Map.Entry<Integer, Integer> entry : father.entrySet()) {
-        //     int new_value = find(entry.getKey());
-        //     father.put(entry.getKey(), new_value);
-        // }
+        for (Map.Entry<Integer, Integer> entry : father.entrySet()) {
+            int new_value = find(entry.getKey());
+            father.put(entry.getKey(), new_value);
+        }
         
         return father;
     }

@@ -38,16 +38,18 @@ class CCServer {
 					int node0 = Integer.parseInt(nodes[0].trim());
 					int node1 = Integer.parseInt(nodes[1].trim());
 
-					// graph.connect(node0, node1);
+					graph.connect(node0, node1);
 				}
 				scanner.close();
 
-				// Map<Integer, Integer> node_to_father = graph.getFatherRelation();
+				Map<Integer, Integer> node_to_father = graph.getFatherRelation();
 				String result = "";
 				
-				// for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
-				// 	result += entry.getKey() + " " + entry.getValue() + "\n";
-				// }
+				for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
+					result += entry.getKey() + " " + entry.getValue() + "\n";
+				}
+
+				System.out.println(result);
 
 				DataOutputStream dout = new DataOutputStream(csock.getOutputStream());
 				bytes = result.getBytes("UTF-8");

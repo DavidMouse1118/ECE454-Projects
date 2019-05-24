@@ -11,8 +11,8 @@ if [ $? -ne 0 ]; then
 fi
 
 echo --- Running
-SAMPLE_INPUT=sample_input/huge.txt
-SAMPLE_OUTPUT=sample_output/huge.out
+SAMPLE_INPUT=sample_input/medium.txt
+SAMPLE_OUTPUT=sample_output/medium.out
 echo -n "Enter the server's host name or IP address: "
 read SERVER_HOST
 echo -n "Enter the server's TCP port number: "
