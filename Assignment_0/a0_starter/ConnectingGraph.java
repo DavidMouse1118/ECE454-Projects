@@ -17,17 +17,11 @@ class ConnectingGraph {
             father.put(j, j);
             return j;
         }
-
-        if (father.get(x) == x) {
-            return x;
-        }
-
-        return find(father.get(x));
         
-        // // find x's root father
-        // while (father.get(j) != j) {
-        //     j = father.get(j);
-        // }
+        // find x's root father
+        while (father.get(j) != j) {
+            j = father.get(j);
+        }
         
         // // path compression
         // while (x != j) {
@@ -36,7 +30,7 @@ class ConnectingGraph {
         //     x = fx;
         // }
         
-        // return j;
+        return j;
     }
 
     public void union(int a, int b) {
