@@ -28,8 +28,24 @@ class CCServer {
 				din.readFully(bytes);
 				
 				int i = 0;
-				while (i <= bytes.length) {
-					System.out.println(bytes[i]);
+				while (i < bytes.length) {
+					int node1 = 0;
+					while (bytes[i] != 32) {
+						char c = (char) bytes[i];
+						node1 = node1 * 10 + Character.getNumericValue(c);
+						i++;
+					}
+
+					System.out.println(node1);
+
+					i++;
+					int node2 = 0;
+					while (bytes[i] != 10) {
+						char c = (char) bytes[i];
+						node2 = node2 * 10 + Character.getNumericValue(c);
+						i++;
+					}
+					System.out.println(node2);
 					i++;
 				} 
 				// String output = new String(bytes, StandardCharsets.UTF_8);
