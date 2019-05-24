@@ -28,16 +28,21 @@ class CCServer {
 					// System.out.println(line);
 					// process line to integers
 					String[] nodes = line.split("\\s");
-					int node_0 = Integer.parseInt(nodes[0].trim());
-					int node_1 = Integer.parseInt(nodes[1].trim());
-					System.out.println(node_0);
+					int node0 = Integer.parseInt(nodes[0].trim());
+					int node1 = Integer.parseInt(nodes[1].trim());
 
-					graph.connect(node_0, node_1);
+					graph.connect(node0, node1);
+				}
+
+				Map<Integer, Integer> node_to_father = graph.getFatherRelation();
+				
+				for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
+					System.out.println(entry.getKey() + " -> " + entry.getValue());
 				}
 
 
-				// String line = reader.readLine();
-				// System.out.println("Read data: " + line);
+
+
 
 				// writer.println(line.toUpperCase());
 				// csock.close();

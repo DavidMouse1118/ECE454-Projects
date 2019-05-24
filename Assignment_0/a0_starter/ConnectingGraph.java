@@ -40,4 +40,7 @@ class ConnectingGraph {
         }
     }
 
+    public HashMap<Integer, Integer> getFatherRelation() {
+        return father
+    }
 }
