@@ -19,7 +19,7 @@ class CCServer {
 				ConnectingGraph graph = new ConnectingGraph();
 				System.out.println("Connecting graph has been initialized.");
 
-				BufferedReader reader = new BufferedReader(new InputStreamReader(csock.getInputStream()));
+				BufferedReader reader = new BufferedReader(new InputStreamReader(csock.getInputStream(), "UTF-8"));
 
 				PrintWriter writer = new PrintWriter(csock.getOutputStream(), true);
 
@@ -30,6 +30,7 @@ class CCServer {
 					String[] nodes = line.split("\\s");
 					int node_0 = Integer.parseInt(nodes[0]);
 					int node_1 = Integer.parseInt(nodes[1]);
+					System.out.println(node_0);
 
 					graph.connect(node_0, node_1);
 				}
