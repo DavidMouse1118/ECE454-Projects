@@ -53,7 +53,7 @@ class CCServer {
 					System.out.println(node2);
 					i++;
 
-					//graph.union(node1, node2);
+					graph.union(node1, node2);
 				} 
 
 				// Output connected components
