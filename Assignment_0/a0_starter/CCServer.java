@@ -52,6 +52,9 @@ class CCServer {
 					System.out.println(entry.getKey() + " -> " + entry.getValue());
 				}
 
+				writer.flush();
+				writer.close();
+
 
 
 
