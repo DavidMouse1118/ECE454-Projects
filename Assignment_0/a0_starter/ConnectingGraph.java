@@ -15,7 +15,7 @@ class ConnectingGraph {
         }
 
         // path compression
-        root_father = find(father.get(x));
+        int root_father = find(father.get(x));
 
         father.put(x, root_father);
 
