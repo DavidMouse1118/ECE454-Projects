@@ -9,6 +9,9 @@ public class Compare {
 	HashMap<Integer, Integer> map0 = normalizeMap(fillMap(args[0]));
 	HashMap<Integer, Integer> map1 = normalizeMap(fillMap(args[1]));
 
+	System.out.println(map0);
+	System.out.println(map1);
+
 	if (map0.equals(map1)) {
 	    System.out.println("Outputs equivalent.");
 	    System.exit(0);
