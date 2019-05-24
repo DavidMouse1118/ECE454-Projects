@@ -25,9 +25,6 @@ class CCServer {
 				System.out.println("received response header, data payload has length " + respDataLen);
 				byte[] bytes = new byte[respDataLen];
 				din.readFully(bytes);
-				long endTime = System.currentTimeMillis();
-				System.out.println(
-						"received " + bytes.length + " bytes of payload data from server in " + (endTime - startTime) + "ms");
 				String output = new String(bytes, StandardCharsets.UTF_8);
 
 				System.out.println(output);
