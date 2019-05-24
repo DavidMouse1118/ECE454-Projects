@@ -16,7 +16,7 @@ class CCServer {
 		while (true) {
 			try {
 				Socket csock = ssock.accept();
-				System.out.println(csock.header)
+				System.out.println(csock.header);
 				System.out.println("Accepted connections: " + csock);
 
 				ConnectingGraph graph = new ConnectingGraph();
