@@ -13,6 +13,18 @@ class CCServer {
 	System.out.println("listening on port " + port);
 	while(true) {
 	    try {
+			Socket csock = ssock.accept();
+			System.out.println("Accepted connections: " + csock);
+
+			BufferedReader reader = new BufferedReader(new InputStreamReader(csock.getInputStream()));
+
+			PrintWriter writer = new PrintWriter(csock.getOutputStream(), true);
+
+			String line = reader.readLine();
+			System.out.println("Read data: " + line);
+
+			writer.println(line.toUpperCase());
+			csock.close();
 		/*
 		  YOUR CODE GOES HERE
 		  - accept connection from server socket
