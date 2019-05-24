@@ -36,8 +36,6 @@ class CCServer {
 						i++;
 					}
 
-					System.out.println(node1);
-
 					i++;
 					int node2 = 0;
 					while (bytes[i] != 10) {
@@ -45,7 +43,6 @@ class CCServer {
 						node2 = node2 * 10 + Character.getNumericValue(c);
 						i++;
 					}
-					System.out.println(node2);
 					i++;
 				} 
 				// String output = new String(bytes, StandardCharsets.UTF_8);
