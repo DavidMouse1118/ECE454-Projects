@@ -1,4 +1,10 @@
-import java.util.*;
+import java.io.*;
+import java.nio.file.*;
+import java.nio.charset.*;
+import java.net.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
 
 class ConnectingGraph {
     private HashMap<Integer, Integer> father = null;
@@ -17,26 +23,26 @@ class ConnectingGraph {
             father.put(j, j);
             return j;
         }
-        
-        // find x's root father
+
+        // find x 的 big brother
         while (father.get(j) != j) {
             j = father.get(j);
         }
-        
-        // path compression
-        while (x != j) {
-            fx = father.get(x);
-            father.put(x, j);
-            x = fx;
-        }
-        
+
+         // path compression
+         while (x != j) {
+             fx = father.get(x);
+             father.put(x, j);
+             x = fx;
+         }
+
         return j;
     }
 
     public void union(int a, int b) {
         int A = find(a);
         int B = find(b);
-        
+
         if (A != B) {
             // int heightA = height.getOrDefault(A, 0);
             // int heightB = height.getOrDefault(B, 0);
@@ -45,7 +51,7 @@ class ConnectingGraph {
             // } else if (heightA < heightB) {
             //     father.put(A, B);
             // } else {
-                father.put(A, B);
+            father.put(A, B);
             //     height.put(B, heightB + 1);
             // }
         }
@@ -57,7 +63,24 @@ class ConnectingGraph {
             int new_value = find(entry.getKey());
             father.put(entry.getKey(), new_value);
         }
-        
+
         return father;
+    }
+
+
+    public static void main(String[] args) throws FileNotFoundException {
+        File file=new File("/Users/zhidongzhang/workspace/ECE454-Project/Assignment-1/Profiling/medium.txt");
+        Scanner scanner = new Scanner(file);
+        ConnectingGraph graph = new ConnectingGraph();
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+            String[] nodes = line.split("\\s");
+            int node0 = Integer.parseInt(nodes[0].trim());
+            int node1 = Integer.parseInt(nodes[1].trim());
+//            System.out.println(node1);
+
+            graph.union(node0, node1);
+        }
+        scanner.close();
     }
 }
