@@ -16,35 +16,48 @@ class CCServer {
 		while (true) {
 			try {
 				Socket csock = ssock.accept();
-				System.out.println(csock.header);
 				System.out.println("Accepted connections: " + csock);
 
-				ConnectingGraph graph = new ConnectingGraph();
-				System.out.println("Connecting graph has been initialized.");
+				DataInputStream din = new DataInputStream(csock.getInputStream());
+				int respDataLen = din.readInt();
+				System.out.println("received response header, data payload has length " + respDataLen);
+				bytes = new byte[respDataLen];
+				din.readFully(bytes);
+				long endTime = System.currentTimeMillis();
+				System.out.println(
+						"received " + bytes.length + " bytes of payload data from server in " + (endTime - startTime) + "ms");
+				String output = new String(bytes, StandardCharsets.UTF_8);
 
-				BufferedReader reader = new BufferedReader(new InputStreamReader(csock.getInputStream(), "UTF-8"));
+				System.out.println(output);
 
-				PrintWriter writer = new PrintWriter(csock.getOutputStream(), true);
+				
 
-				String line = null;
-				while ((line = reader.readLine()) != null) {
-					// System.out.println(line);
-					// process line to integers
-					String[] nodes = line.split("\\s");
-					int node0 = Integer.parseInt(nodes[0].trim());
-					int node1 = Integer.parseInt(nodes[1].trim());
+				// ConnectingGraph graph = new ConnectingGraph();
+				// System.out.println("Connecting graph has been initialized.");
 
-					graph.connect(node0, node1);
-					System.out.println(line);
-				}
+				// BufferedReader reader = new BufferedReader(new InputStreamReader(csock.getInputStream(), "UTF-8"));
 
-				System.out.println(123);
-				Map<Integer, Integer> node_to_father = graph.getFatherRelation();
+				// PrintWriter writer = new PrintWriter(csock.getOutputStream(), true);
 
-				System.out.println(node_to_father);
-				for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
-					System.out.println(entry.getKey() + " -> " + entry.getValue());
-				}
+				// String line = null;
+				// while ((line = reader.readLine()) != null) {
+				// 	// System.out.println(line);
+				// 	// process line to integers
+				// 	String[] nodes = line.split("\\s");
+				// 	int node0 = Integer.parseInt(nodes[0].trim());
+				// 	int node1 = Integer.parseInt(nodes[1].trim());
+
+				// 	graph.connect(node0, node1);
+				// 	System.out.println(line);
+				// }
+
+				// System.out.println(123);
+				// Map<Integer, Integer> node_to_father = graph.getFatherRelation();
+
+				// System.out.println(node_to_father);
+				// for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
+				// 	System.out.println(entry.getKey() + " -> " + entry.getValue());
+				// }
 
 
 
