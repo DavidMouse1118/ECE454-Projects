@@ -2,11 +2,11 @@ import java.util.*;
 
 class ConnectingGraph {
     private HashMap<Integer, Integer> father = null;
-    // private HashMap<Integer, Integer> height = null;
+    private HashMap<Integer, Integer> height = null;
 
     public ConnectingGraph() {
         father = new HashMap<Integer, Integer>();
-        // height = new HashMap<Integer, Integer>();
+        height = new HashMap<Integer, Integer>();
     }
 
     public int find(int x) {
@@ -38,16 +38,16 @@ class ConnectingGraph {
         int B = find(b);
         
         if (A != B) {
-            // int heightA = height.getOrDefault(A, 0);
-            // int heightB = height.getOrDefault(B, 0);
-            // if (heightA > heightB) {
-            //     father.put(B, A);
-            // } else if (heightA < heightB) {
-            //     father.put(A, B);
-            // } else {
+            int heightA = height.getOrDefault(A, 0);
+            int heightB = height.getOrDefault(B, 0);
+            if (heightA > heightB) {
+                father.put(B, A);
+            } else if (heightA < heightB) {
                 father.put(A, B);
-            //     height.put(B, heightB + 1);
-            // }
+            } else {
+                father.put(A, B);
+                height.put(B, heightB + 1);
+            }
         }
     }
 
