@@ -21,7 +21,7 @@ class CCServer {
 			PrintWriter writer = new PrintWriter(csock.getOutputStream(), true);
 
 			String line = null;
-			while ((line = br.readLine()) != null) {
+			while ((line = reader.readLine()) != null) {
 				System.out.println(line);
 			}
 
