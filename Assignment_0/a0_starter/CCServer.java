@@ -25,7 +25,7 @@ class CCServer {
 					System.out.println(line);
 				}
 
-				writer.println(line.toUpperCase());
+				//writer.println(line.toUpperCase());
 				// csock.close();
 				/*
 				 * YOUR CODE GOES HERE - accept connection from server socket - read requests
