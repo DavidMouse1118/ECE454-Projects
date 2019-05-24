@@ -11,11 +11,11 @@ class ConnectingGraph {
 
     public int find(int x) {
         if (father[x] == x) {
-            return x
+            return x;
         }
 
         // path compression
-        return father[x] = find(father[x])
+        return father[x] = find(father[x]);
     }
 
     public void connect(int a, int b) {
