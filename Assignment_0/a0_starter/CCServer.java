@@ -30,14 +30,9 @@ class CCServer {
 				ConnectingGraph graph = new ConnectingGraph();
 				System.out.println("Connecting graph has been initialized.");
 
-				BufferedReader reader = new BufferedReader(output);
-
-				PrintWriter writer = new PrintWriter(csock.getOutputStream(), true);
-
-				String line = null;
-				while ((line = reader.readLine()) != null) {
-					// System.out.println(line);
-					// process line to integers
+				Scanner scanner = new Scanner(output);
+				while (scanner.hasNextLine()) {
+					String line = scanner.nextLine();
 					String[] nodes = line.split("\\s");
 					int node0 = Integer.parseInt(nodes[0].trim());
 					int node1 = Integer.parseInt(nodes[1].trim());
@@ -45,6 +40,9 @@ class CCServer {
 					graph.connect(node0, node1);
 					System.out.println(line);
 				}
+				scanner.close();
+
+				PrintWriter writer = new PrintWriter(csock.getOutputStream(), true);
 
 				System.out.println(123);
 				Map<Integer, Integer> node_to_father = graph.getFatherRelation();
