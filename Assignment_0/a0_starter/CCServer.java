@@ -55,28 +55,8 @@ class CCServer {
 
 					graph.union(node1, node2);
 				} 
-				// String output = new String(bytes, StandardCharsets.UTF_8);
 
-				// // Initialing connecting graph
-				// ConnectingGraph graph = new ConnectingGraph();
-				// System.out.println("Connecting graph has been initialized.");
-
-				// // Read the output byte by byte
-
-
-				// // Read edges and union
-				// Scanner scanner = new Scanner(output);
-				// while (scanner.hasNextLine()) {
-				// 	String line = scanner.nextLine();
-				// 	String[] nodes = line.split("\\s");
-				// 	int node0 = Integer.parseInt(nodes[0].trim());
-				// 	int node1 = Integer.parseInt(nodes[1].trim());
-
-				// 	graph.union(node0, node1);
-				// }
-				// scanner.close();
-
-				// output connected components
+				// Output connected components
 				Map<Integer, Integer> node_to_father = graph.getFatherRelation();
 				String result = "";
 				
@@ -84,8 +64,7 @@ class CCServer {
 					result += entry.getKey() + " " + entry.getValue() + "\n";
 				}
 
-				// System.out.println(result);
-
+				// Write result to the client
 				DataOutputStream dout = new DataOutputStream(csock.getOutputStream());
 				bytes = result.getBytes("UTF-8");
 				dout.writeInt(bytes.length);
