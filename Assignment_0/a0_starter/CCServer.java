@@ -7,39 +7,6 @@ import java.util.Map;
 import java.util.Scanner;
 
 class CCServer {
-    public static int find(HashMap<Integer, Integer> father, int x) {
-        int j, fx;
-        j = x;
-
-        if (father.containsKey(j) == false) {
-            father.put(j, j);
-            return j;
-        }
-        
-        // find x 的 big brother
-        while (father.get(j) != j) {
-            j = father.get(j);
-        }
-        
-        // path compression
-        while (x != j) {
-            fx = father.get(x);
-            father.put(x, j);
-            x = fx;
-        }
-        
-        return j;
-    }
-
-    public static void union(HashMap<Integer, Integer> father, int a, int b) {
-        int A = find(father, a);
-        int B = find(father, b);
-        
-        if (A != B) {
-            father.put(A, B);
-        }
-    }
-
 	public static void main(String args[]) throws Exception {
 		if (args.length != 1) {
 			System.out.println("usage: java CCServer port");
@@ -61,7 +28,7 @@ class CCServer {
 				din.readFully(bytes);
 				String output = new String(bytes, StandardCharsets.UTF_8);
 
-				HashMap<Integer, Integer> father = new HashMap<Integer, Integer>();
+				ConnectingGraph graph = new ConnectingGraph();
 				System.out.println("Connecting graph has been initialized.");
 
 				// Read edges and union
@@ -72,15 +39,16 @@ class CCServer {
 					int node0 = Integer.parseInt(nodes[0].trim());
 					int node1 = Integer.parseInt(nodes[1].trim());
 
-					union(father, node0, node1);
+					graph.union(node0, node1);
 				}
 				scanner.close();
 
+				// output connected components
+				Map<Integer, Integer> node_to_father = graph.getFatherRelation();
 				String result = "";
 				
-				for (Map.Entry<Integer, Integer> entry : father.entrySet()) {
-					int root = find(father, entry.getKey());
-					result += entry.getKey() + " " + root + "\n";
+				for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
+					result += entry.getKey() + " " + entry.getValue() + "\n";
 				}
 
 				// System.out.println(result);
