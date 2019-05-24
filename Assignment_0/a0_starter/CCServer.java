@@ -44,12 +44,11 @@ class CCServer {
 				scanner.close();
 
 				PrintWriter writer = new PrintWriter(csock.getOutputStream(), true);
-
-				System.out.println(123);
 				Map<Integer, Integer> node_to_father = graph.getFatherRelation();
 
 				System.out.println(node_to_father);
 				for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
+					writer.println(entry.getKey() + " " + entry.getValue());
 					System.out.println(entry.getKey() + " -> " + entry.getValue());
 				}
 
