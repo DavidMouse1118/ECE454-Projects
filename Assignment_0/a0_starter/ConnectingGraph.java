@@ -10,21 +10,27 @@ class ConnectingGraph {
     }
 
     public int find(int x) {
-        if (father.get(x) == null) {
-            father.put(x, x);
-            return x;
-        }
+        int j, fx;
+        j = x;
 
-        if (father.get(x) == x) {
-            return x;
+        if (father.containsKey(j) == false) {
+            father.put(j, j);
+            return j;
         }
-
+        
+        // find x 的 big brother
+        while (father.get(j) != j) {
+            j = father.get(j);
+        }
+        
         // path compression
-        int root_father = find(father.get(x));
-
-        father.put(x, root_father);
-
-        return root_father;
+        while (x != j) {
+            fx = father.get(x);
+            father.put(x, j);
+            x = fx;
+        }
+        
+        return j;
     }
 
     public void connect(int a, int b) {
