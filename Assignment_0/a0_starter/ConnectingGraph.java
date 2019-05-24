@@ -10,7 +10,12 @@ class ConnectingGraph {
     }
 
     public int find(int x) {
-        if (father.getOrDefault(x, x) == x) {
+        if (father.get(x) == null) {
+            father.put(x, x);
+            return x
+        }
+        
+        if (father.get(x) == x) {
             return x;
         }
 
