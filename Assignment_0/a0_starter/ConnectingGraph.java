@@ -24,11 +24,11 @@ class ConnectingGraph {
         }
         
         // path compression
-        while (x != j) {
-            fx = father.get(x);
-            father.put(x, j);
-            x = fx;
-        }
+        // while (x != j) {
+        //     fx = father.get(x);
+        //     father.put(x, j);
+        //     x = fx;
+        // }
         
         return j;
     }
