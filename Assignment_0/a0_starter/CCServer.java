@@ -36,9 +36,10 @@ class CCServer {
 					graph.connect(node0, node1);
 				}
 
+				System.out.println(123);
 				Map<Integer, Integer> node_to_father = graph.getFatherRelation();
 
-				System.out.println(node_to_father.size());
+				System.out.println(node_to_father);
 				for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
 					System.out.println(entry.getKey() + " -> " + entry.getValue());
 				}
