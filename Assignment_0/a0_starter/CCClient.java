@@ -43,8 +43,6 @@ class CCClient {
 				"received " + bytes.length + " bytes of payload data from server in " + (endTime - startTime) + "ms");
 		String output = new String(bytes, StandardCharsets.UTF_8);
 
-		System.out.println(output); // My added
-
 		// step 5: save to file
 		Files.write(Paths.get(outputFileName), output.getBytes("UTF-8"));
 		System.out.println("wrote output to " + outputFileName);
