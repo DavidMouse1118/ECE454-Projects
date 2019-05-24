@@ -53,7 +53,7 @@ class CCServer {
 				System.out.println(result);
 
 				DataOutputStream dout = new DataOutputStream(csock.getOutputStream());
-				byte[] bytes = result.getBytes("UTF-8");
+				bytes = result.getBytes("UTF-8");
 				dout.writeInt(bytes.length);
 				dout.write(bytes);
 				dout.flush();
