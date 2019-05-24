@@ -28,12 +28,13 @@ class CCServer {
 					// System.out.println(line);
 					// process line to integers
 					String[] nodes = line.split("\\s");
-					node_0 = Integer.parseInt(nodes[0]);
-					node_1 = Integer.parseInt(nodes[1]);
+					int node_0 = Integer.parseInt(nodes[0]);
+					int node_1 = Integer.parseInt(nodes[1]);
+
 					graph.connect(node_0, node_1);
 				}
 
-				
+
 				// String line = reader.readLine();
 				// System.out.println("Read data: " + line);
 
