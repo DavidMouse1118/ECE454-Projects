@@ -45,19 +45,13 @@ class CCServer {
 
 				PrintWriter writer = new PrintWriter(csock.getOutputStream(), true);
 				Map<Integer, Integer> node_to_father = graph.getFatherRelation();
-
-				System.out.println(node_to_father);
+				String result = "";
+				
 				for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
-					writer.println(entry.getKey() + " " + entry.getValue());
-					System.out.println(entry.getKey() + " -> " + entry.getValue());
+					result += entry.getKey() + " " + entry.getValue() + "\n";
 				}
 
-				writer.flush();
-				writer.close();
-
-
-
-
+				System.out.println(result);
 
 				// writer.println(line.toUpperCase());
 				// csock.close();
