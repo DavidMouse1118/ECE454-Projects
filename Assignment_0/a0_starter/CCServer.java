@@ -29,6 +29,9 @@ class CCServer {
 				while ((line = reader.readLine()) != null) {
 					// System.out.println(line);
 					// process line to integers
+					if (line == "") {
+						break;
+					}
 					String[] nodes = line.split("\\s");
 					int node0 = Integer.parseInt(nodes[0].trim());
 					int node1 = Integer.parseInt(nodes[1].trim());
