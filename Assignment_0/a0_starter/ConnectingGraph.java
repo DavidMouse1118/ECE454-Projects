@@ -69,7 +69,7 @@ class ConnectingGraph {
         // }
     }
 
-    public HashMap<Integer, Integer> refreshFatherRelation() {
+    public int[] refreshFatherRelation() {
         // Find again for each node
         // for (Map.Entry<Integer, Integer> entry : father.entrySet()) {
         //     int new_value = find(entry.getKey());

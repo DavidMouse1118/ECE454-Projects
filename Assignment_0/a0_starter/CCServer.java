@@ -57,12 +57,12 @@ class CCServer {
 				} 
 
 				// Output connected components
-				Map<Integer, Integer> node_to_father = graph.refreshFatherRelation();
+				// Map<Integer, Integer> node_to_father = graph.refreshFatherRelation();
 				String result = "";
 
-				for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
-					result += entry.getKey() + " " + entry.getValue() + "\n";
-				}
+				// for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
+				// 	result += entry.getKey() + " " + entry.getValue() + "\n";
+				// }
 
 				// Write result to the client
 				DataOutputStream dout = new DataOutputStream(csock.getOutputStream());
