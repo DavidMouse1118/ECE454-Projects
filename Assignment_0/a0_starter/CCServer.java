@@ -26,7 +26,6 @@ class CCServer {
 				System.out.println("received response header, data payload has length " + respDataLen);
 				byte[] bytes = new byte[respDataLen];
 				din.readFully(bytes);
-				// din.close();
 
 				// Initialing connecting graph
 				ConnectingGraph graph = new ConnectingGraph();
@@ -35,6 +34,7 @@ class CCServer {
 				// Read node from file using byte, and connect two nodes
 				int i = 0;
 				while (i < bytes.length) {
+					// Get node1 till space (32)
 					int node1 = 0;
 					while (bytes[i] != 32) {
 						char c = (char) bytes[i];
@@ -43,6 +43,7 @@ class CCServer {
 					}
 					i++;
 
+					// Get node1 till next line (10)
 					int node2 = 0;
 					while (bytes[i] != 10) {
 						char c = (char) bytes[i];
@@ -54,21 +55,9 @@ class CCServer {
 					graph.union(node1, node2);
 				} 
 
-				// Output connected components
-				Map<Integer, Integer> node_to_father = graph.refreshFatherRelation();
-				StringBuilder sb = new StringBuilder();
-
-				for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
-					sb.append(entry.getKey());
-					sb.append(" ");
-					sb.append(entry.getValue());
-					sb.append("\n");
-					// sb.append(entry.getKey() + " " + entry.getValue() + "\n");
-				}
-
-				// Write result to the client
+				// Write graph result to the client
 				DataOutputStream dout = new DataOutputStream(csock.getOutputStream());
-				bytes = sb.toString().getBytes("UTF-8");
+				bytes = graph.toString().getBytes("UTF-8");
 				dout.writeInt(bytes.length);
 				dout.write(bytes);
 				dout.flush();

@@ -9,68 +9,57 @@ class ConnectingGraph {
         height = new HashMap<Integer, Integer>();
     }
 
-    public int find(int x) {
-        int j, fx;
-        j = x;
-
-        // find x's root father
-        while (father.get(j) != j) {
-            j = father.get(j);
-        }
-
-        // // path compression
-        // while (x != j) {
-        //     fx = father.get(x);
-        //     father.put(x, j);
-        //     x = fx;
-        // }
-
-        return j;
-    }
-
-    public void addNode(int node) {
+    public void add(int node) {
         if (!father.containsKey(node)){
             father.put(node, node);
             height.put(node, 0);
         }
     }
 
-    public void union(int a, int b) {
-        if (!father.containsKey(a)) {
-            father.put(a, a);
-            height.put(a, 0);
+    public int find(int node) {
+        // find root father
+        while (father.get(node) != node) {
+            node = father.get(node);
         }
 
-        if (!father.containsKey(b)) {
-            father.put(b, b);
-            height.put(b, 0);
-        }
+        return node;
+    }
 
-        int A = find(a);
-        int B = find(b);
+    public void union(int node1, int node2) {
+        // Add nodes if not exist
+        add(node1);
+        add(node2);
 
-        if (A != B) {
-            int heightA = height.get(A);
-            int heightB = height.get(B);
+        // Find the root father
+        int f1 = find(node1);
+        int f2 = find(node2);
 
-            if (heightA > heightB) {
-                father.put(B, A);
-            } else if (heightA < heightB) {
-                father.put(A, B);
+        // Connect root father based on its height
+        if (f1 != f2) {
+            int h1 = height.get(f1);
+            int h2 = height.get(f2);
+
+            if (h1 > h2) {
+                father.put(f2, f1);
+            } else if (h1 < h2) {
+                father.put(f1, f2);
             } else {
-                father.put(A, B);
-                height.put(B, heightB + 1);
+                father.put(f1, f2);
+                height.put(f2, h2 + 1);
             }
         }
     }
 
-    public HashMap<Integer, Integer> refreshFatherRelation() {
-        // Find again for each node
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
         for (Map.Entry<Integer, Integer> entry : father.entrySet()) {
-            int new_value = find(entry.getKey());
-            father.put(entry.getKey(), new_value);
+            sb.append(entry.getKey());
+            sb.append(" ");
+            sb.append(find(entry.getKey())); // find and add the root father
+            sb.append("\n");
         }
 
-        return father;
+        return sb.toString();
     }
 }
