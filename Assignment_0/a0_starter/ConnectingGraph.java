@@ -39,8 +39,10 @@ class ConnectingGraph {
         //     height.put(b, 0);
         // }
 
-        // int A = find(a);
-        // int B = find(b);
+        int A = find(a);
+        int B = find(b);
+
+        return;
 
         // if (A != B) {
         //     int heightA = height.get(A);
