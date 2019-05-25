@@ -52,6 +52,7 @@ class CCServer {
 					}
 					i++;
 					
+					// Union subset of node1 and node2
 					graph.union(node1, node2);
 				} 
 
