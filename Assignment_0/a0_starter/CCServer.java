@@ -57,7 +57,7 @@ class CCServer {
 				} 
 
 				// Output connected components
-				Map<Integer, Integer> node_to_father = graph.getFatherRelation();
+				Map<Integer, Integer> node_to_father = graph.refreshFatherRelation();
 				String result = "";
 
 				for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
