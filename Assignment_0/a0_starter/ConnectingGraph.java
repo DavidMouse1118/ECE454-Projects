@@ -29,15 +29,15 @@ class ConnectingGraph {
     }
 
     public void union(int a, int b) {
-        // if (!father.containsKey(a)) {
-        //     father.put(a, a);
-        //     height.put(a, 0);
-        // }
+        if (!father.containsKey(a)) {
+            father.put(a, a);
+            height.put(a, 0);
+        }
 
-        // if (!father.containsKey(b)) {
-        //     father.put(b, b);
-        //     height.put(b, 0);
-        // }
+        if (!father.containsKey(b)) {
+            father.put(b, b);
+            height.put(b, 0);
+        }
 
         int A = find(a);
         int B = find(b);
