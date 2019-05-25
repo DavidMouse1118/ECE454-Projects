@@ -26,10 +26,11 @@ class CCServer {
 				System.out.println("received response header, data payload has length " + respDataLen);
 				byte[] bytes = new byte[respDataLen];
 				din.readFully(bytes);
-				din.close();
+				// din.close();
 
 				// Initialing connecting graph
 				ConnectingGraph graph = new ConnectingGraph();
+				// HashMap<Integer, Integer> father = new HashMap<Integer, Integer>();;
 				System.out.println("Connecting graph has been initialized.");
 				
 				// Read node from file using byte, and connect two nodes
@@ -41,33 +42,34 @@ class CCServer {
 						node1 = node1 * 10 + Character.getNumericValue(c);
 						i++;
 					}
-
-					// System.out.println(node1);
-
 					i++;
+
 					int node2 = 0;
 					while (bytes[i] != 10) {
 						char c = (char) bytes[i];
 						node2 = node2 * 10 + Character.getNumericValue(c);
 						i++;
 					}
-					// System.out.println(node2);
 					i++;
-
+					
 					graph.union(node1, node2);
 				} 
 
 				// Output connected components
 				Map<Integer, Integer> node_to_father = graph.refreshFatherRelation();
-				String result = "";
+				StringBuilder sb = new StringBuilder();
 
 				for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
-					result += entry.getKey() + " " + entry.getValue() + "\n";
+					sb.append(entry.getKey());
+					sb.append(" ");
+					sb.append(entry.getValue());
+					sb.append("\n");
+					// sb.append(entry.getKey() + " " + entry.getValue() + "\n");
 				}
 
 				// Write result to the client
 				DataOutputStream dout = new DataOutputStream(csock.getOutputStream());
-				bytes = result.getBytes("UTF-8");
+				bytes = sb.toString().getBytes("UTF-8");
 				dout.writeInt(bytes.length);
 				dout.write(bytes);
 				dout.flush();
