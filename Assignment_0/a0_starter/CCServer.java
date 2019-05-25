@@ -59,20 +59,20 @@ class CCServer {
 				} 
 
 				// Output connected components
-				// Map<Integer, Integer> node_to_father = graph.refreshFatherRelation();
-				// String result = "";
+				Map<Integer, Integer> node_to_father = graph.refreshFatherRelation();
+				String result = "";
 
-				// for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
-				// 	result += entry.getKey() + " " + entry.getValue() + "\n";
-				// }
+				for (Map.Entry<Integer, Integer> entry : node_to_father.entrySet()) {
+					result += entry.getKey() + " " + entry.getValue() + "\n";
+				}
 
-				// // Write result to the client
-				// DataOutputStream dout = new DataOutputStream(csock.getOutputStream());
-				// bytes = result.getBytes("UTF-8");
-				// dout.writeInt(bytes.length);
-				// dout.write(bytes);
-				// dout.flush();
-				// System.out.println("sent result header and " + bytes.length + " bytes of payload data to Client");
+				// Write result to the client
+				DataOutputStream dout = new DataOutputStream(csock.getOutputStream());
+				bytes = result.getBytes("UTF-8");
+				dout.writeInt(bytes.length);
+				dout.write(bytes);
+				dout.flush();
+				System.out.println("sent result header and " + bytes.length + " bytes of payload data to Client");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
