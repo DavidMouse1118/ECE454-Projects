@@ -10,50 +10,40 @@ class ConnectingGraph {
     }
 
     public int find(int x) {
-        int j, fx;
-        j = x;
-
-        // find x's root father
-        while (father.get(j) != j) {
-            j = father.get(j);
+        while (x != father.get(x)) {
+            // path compression
+            father.put(x, father.get(father.get(x)));
+            x = father.get(x);
         }
-
-        // path compression
-        while (x != j) {
-        fx = father.get(x);
-        father.put(x, j);
-        x = fx;
-        }
-
-        return j;
+        
+        return x;
     }
 
     public void union(int a, int b) {
         if (!father.containsKey(a)) {
             father.put(a, a);
-            height.put(a, 0);
+            height.put(a, 1);
         }
 
         if (!father.containsKey(b)) {
             father.put(b, b);
-            height.put(b, 0);
+            height.put(b, 1);
         }
 
         int A = find(a);
         int B = find(b);
 
-        if (A != B) {
+        // if (A != B) {
             int heightA = height.get(A);
             int heightB = height.get(B);
-            if (heightA > heightB) {
+            if (heightA >= heightB) {
                 father.put(B, A);
-            } else if (heightA < heightB) {
-                father.put(A, B);
+                height.put(A, heightA + heightB);
             } else {
                 father.put(A, B);
-                height.put(B, heightB + 1);
-            }
-        }
+                height.put(B, heightA + heightB);
+            } 
+        // }
     }
 
     public HashMap<Integer, Integer> getFatherRelation() {
