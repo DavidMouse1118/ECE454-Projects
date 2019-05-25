@@ -1,13 +1,11 @@
 import java.util.*;
 
 class ConnectingGraph {
-    private int[] father = null;
-    // private HashMap<Integer, Integer> father = null;
+    private HashMap<Integer, Integer> father = null;
     // private HashMap<Integer, Integer> height = null;
 
     public ConnectingGraph() {
-        father = new int[Integer.MAX_VALUE];
-        // father = new HashMap<Integer, Integer>();
+        father = new HashMap<Integer, Integer>();
         // height = new HashMap<Integer, Integer>();
     }
 
@@ -31,23 +29,15 @@ class ConnectingGraph {
     }
 
     public void union(int a, int b) {
-        if (father[a] == 0) {
-            father[a] = a;
+        if (father.get(a) == null) {
+            father.put(a, a);
             // height.put(a, 0);
         }
-        if (father[b] == 0) {
-            father[b] = b;
-            // height.put(a, 0);
-        }
-        // if (father.get(a) == null) {
-        //     father.put(a, a);
-        //     // height.put(a, 0);
-        // }
 
-        // if (father.get(b) == null) {
-        //     father.put(b, b);
-        //     // height.put(b, 0);
-        // }
+        if (father.get(b) == null) {
+            father.put(b, b);
+            // height.put(b, 0);
+        }
 
         int A = find(a);
         int B = find(b);
@@ -69,7 +59,7 @@ class ConnectingGraph {
         // }
     }
 
-    public int[] refreshFatherRelation() {
+    public HashMap<Integer, Integer> refreshFatherRelation() {
         // Find again for each node
         // for (Map.Entry<Integer, Integer> entry : father.entrySet()) {
         //     int new_value = find(entry.getKey());
