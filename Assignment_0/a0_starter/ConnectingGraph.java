@@ -13,17 +13,17 @@ class ConnectingGraph {
         int j, fx;
         j = x;
 
-        // find x's root father
-        while (father.get(j) != j) {
-            j = father.get(j);
-        }
+        // // find x's root father
+        // while (father.get(j) != j) {
+        //     j = father.get(j);
+        // }
 
-        // path compression
-        while (x != j) {
-            fx = father.get(x);
-            father.put(x, j);
-            x = fx;
-        }
+        // // path compression
+        // while (x != j) {
+        //     fx = father.get(x);
+        //     father.put(x, j);
+        //     x = fx;
+        // }
 
         return j;
     }
