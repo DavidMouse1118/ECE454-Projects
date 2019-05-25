@@ -42,19 +42,19 @@ class ConnectingGraph {
         int A = find(a);
         int B = find(b);
 
-        if (A != B) {
-            int heightA = height.get(A);
-            int heightB = height.get(B);
+        // if (A != B) {
+        //     int heightA = height.get(A);
+        //     int heightB = height.get(B);
 
-            if (heightA > heightB) {
-                father.put(B, A);
-            } else if (heightA < heightB) {
-                father.put(A, B);
-            } else {
-                father.put(A, B);
-                height.put(B, heightB + 1);
-            }
-        }
+        //     if (heightA > heightB) {
+        //         father.put(B, A);
+        //     } else if (heightA < heightB) {
+        //         father.put(A, B);
+        //     } else {
+        //         father.put(A, B);
+        //         height.put(B, heightB + 1);
+        //     }
+        // }
     }
 
     public HashMap<Integer, Integer> refreshFatherRelation() {
