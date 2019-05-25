@@ -10,13 +10,22 @@ class ConnectingGraph {
     }
 
     public int find(int x) {
-        while (x != father.get(x)) {
-            // path compression
-            father.put(x, father.get(father.get(x)));
-            x = father.get(x);
+        int j, fx;
+        j = x;
+
+        // find x's root father
+        while (father.get(j) != j) {
+            j = father.get(j);
         }
-        
-        return x;
+
+        // path compression
+        while (x != j) {
+            fx = father.get(x);
+            father.put(x, j);
+            x = fx;
+        }
+
+        return j;
     }
 
     public void union(int a, int b) {
@@ -33,7 +42,7 @@ class ConnectingGraph {
         int A = find(a);
         int B = find(b);
 
-        // if (A != B) {
+        if (A != B) {
             int heightA = height.get(A);
             int heightB = height.get(B);
             if (heightA >= heightB) {
@@ -43,7 +52,7 @@ class ConnectingGraph {
                 father.put(A, B);
                 height.put(B, heightA + heightB);
             } 
-        // }
+        }
     }
 
     public HashMap<Integer, Integer> getFatherRelation() {
