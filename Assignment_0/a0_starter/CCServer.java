@@ -26,6 +26,7 @@ class CCServer {
 				System.out.println("received response header, data payload has length " + respDataLen);
 				byte[] bytes = new byte[respDataLen];
 				din.readFully(bytes);
+				din.close();
 
 				// Initialing connecting graph
 				ConnectingGraph graph = new ConnectingGraph();
