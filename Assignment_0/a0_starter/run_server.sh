@@ -11,6 +11,6 @@ if [ $? -ne 0 ]; then
 fi
 
 echo --- Running
-RANDOM_PORT=`shuf -i 10000-10999 -n 1`
-echo randomly chose port $RANDOM_PORT
-java -Xmx1g CCServer $RANDOM_PORT
+# RANDOM_PORT=`shuf -i 10000-10999 -n 1` 
+echo randomly chose port 10100
+java -Xmx1g CCServer 10100

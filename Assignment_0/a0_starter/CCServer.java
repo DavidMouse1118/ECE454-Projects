@@ -30,7 +30,6 @@ class CCServer {
 
 				// Initialing connecting graph
 				ConnectingGraph graph = new ConnectingGraph();
-				// HashMap<Integer, Integer> father = new HashMap<Integer, Integer>();;
 				System.out.println("Connecting graph has been initialized.");
 				
 				// Read node from file using byte, and connect two nodes

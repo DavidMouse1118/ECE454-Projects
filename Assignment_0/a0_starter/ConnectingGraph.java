@@ -18,12 +18,12 @@ class ConnectingGraph {
             j = father.get(j);
         }
 
-        // path compression
-        while (x != j) {
-            fx = father.get(x);
-            father.put(x, j);
-            x = fx;
-        }
+        // // path compression
+        // while (x != j) {
+        //     fx = father.get(x);
+        //     father.put(x, j);
+        //     x = fx;
+        // }
 
         return j;
     }
@@ -31,6 +31,7 @@ class ConnectingGraph {
     public void addNode(int node) {
         if (!father.containsKey(node)){
             father.put(node, node);
+            height.put(node, 0);
         }
     }
 
