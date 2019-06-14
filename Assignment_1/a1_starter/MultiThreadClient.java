@@ -37,7 +37,7 @@ public class MultiThreadClient {
                             transport.open();
     
                             List<String> password = new ArrayList<>();
-                            for (int i = 0; i < 1; i++) {
+                            for (int i = 0; i < 10; i++) {
                                 password.add(getAlphaNumericString(1024));
                             }
                             List<String> hash = client.hashPassword(password, (short) 10);
@@ -57,7 +57,7 @@ public class MultiThreadClient {
             // // boolean wait = latch.await(30, TimeUnit.SECONDS);
             // System.out.println("latch.await =:" + wait);
             System.out.println("Exiting client.");
-            System.out.println("Time to run all request: " + (System.currentTimeMillis() - startTime) + " ms");
+            System.out.println("Time to send all request: " + (System.currentTimeMillis() - startTime) + " ms");
 
         } catch (Exception e) {
             e.printStackTrace();
