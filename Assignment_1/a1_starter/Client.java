@@ -39,7 +39,7 @@ public class Client {
 				System.out.println("Exception check: exception thrown");
 			}
 
-			transport.close();
+			// transport.close();
 		} catch (TException x) {
 			x.printStackTrace();
 		}

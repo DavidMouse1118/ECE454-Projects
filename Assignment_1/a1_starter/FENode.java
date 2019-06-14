@@ -1,11 +1,13 @@
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 
 import org.apache.thrift.TProcessorFactory;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.server.TSimpleServer;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TFramedTransport;
+import org.apache.thrift.server.TThreadPoolServer;
 import java.util.concurrent.CountDownLatch;
 import org.apache.thrift.*;
 import org.apache.thrift.async.*;
@@ -33,13 +35,20 @@ public class FENode {
 		// launch Thrift server
 		BcryptService.Processor processor = new BcryptService.Processor<BcryptService.Iface>(
 				new FEHandler());
-		TNonblockingServerSocket socket = new TNonblockingServerSocket(portFE);
-		THsHaServer.Args sargs = new THsHaServer.Args(socket);
+		TServerSocket socket = new TServerSocket(portFE);
+		TThreadPoolServer.Args sargs = new TThreadPoolServer.Args(socket);
 		sargs.protocolFactory(new TBinaryProtocol.Factory());
 		sargs.transportFactory(new TFramedTransport.Factory());
 		sargs.processorFactory(new TProcessorFactory(processor));
-		TServer server = new THsHaServer(sargs);
-		server.serve();
+		sargs.minWorkerThreads = 10;
+		TServer server = new TThreadPoolServer(sargs);
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				server.serve();
+			}
+		}).start();
 	}
 
 }

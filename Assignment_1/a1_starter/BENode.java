@@ -2,10 +2,12 @@ import java.net.InetAddress;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 
 import org.apache.thrift.TProcessorFactory;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.server.TSimpleServer;
+import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TSocket;
@@ -46,13 +48,13 @@ public class BENode {
 		// launch Thrift server
 		BcryptService.Processor processor = new BcryptService.Processor<BcryptService.Iface>(
 				new BEHandler());
-		TNonblockingServerSocket socket = new TNonblockingServerSocket(portBE);
-		THsHaServer.Args sargs = new THsHaServer.Args(socket);
+		TServerSocket socket = new TServerSocket(portBE);
+		TThreadPoolServer.Args sargs = new TThreadPoolServer.Args(socket);
 		sargs.protocolFactory(new TBinaryProtocol.Factory());
 		sargs.transportFactory(new TFramedTransport.Factory());
 		sargs.processorFactory(new TProcessorFactory(processor));
-		// sargs.maxWorkerThreads(64);
-		THsHaServer server = new THsHaServer(sargs);
+		sargs.minWorkerThreads = 10;
+		TThreadPoolServer server = new TThreadPoolServer(sargs);
 
 		server.serve();
 		System.out.println("should appear");
@@ -66,7 +68,7 @@ public class BENode {
 			BcryptService.Client client = new BcryptService.Client(protocol);
 			transport.open();
 			client.beToFeRegistrar(beHost, bePort);
-			transport.close();
+			// transport.close();
 		} catch (Exception e) {
 			// Do nothing
 		}

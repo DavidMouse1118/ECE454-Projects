@@ -10,5 +10,5 @@ do
     password="passssssssssword"
 
     echo "Client Password: $password"
-    java -cp .:gen-java/:"lib/*":"jBCrypt-0.4/*" Client localhost 10230 hello
+    java -cp .:gen-java/:"lib/*":"jBCrypt-0.4/*" Client localhost 10129 hello
 done
