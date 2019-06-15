@@ -38,40 +38,59 @@ public class FEHandler implements BcryptService.Iface {
 	public List<BENode> liveBE = new CopyOnWriteArrayList<>();
 
 	public void beToFeRegistrar(String beHost, int bePort) {
-		liveBE.add(new BENode(beHost, bePort));
-
-		System.out.println("Backend server " + beHost + ":" + bePort + " is alive!");
-
-		System.out.println("There are " + liveBE.size() + " backend server are running.");
+		try {
+			semaphore.acquire();
+			liveBE.add(new BENode(beHost, bePort));
+			
+			System.out.println("Backend server " + beHost + ":" + bePort + " is alive!");
+			
+			System.out.println("There are " + liveBE.size() + " backend server are running.");
+			semaphore.release();
+		// Thread.sleep(1000);
+		} catch (Exception e) {
+			//TODO: handle exception
+		}
+		
 	}
 	
 	@Override
 	public List<String> hashPassword(List<String> password, short logRounds)
 			throws IllegalArgument, org.apache.thrift.TException {
 				try {
-					if (liveBE.size() == 0) {
-						System.out.println("There is not BE node. Hash Passward in FE");
-						List<String> ret = new ArrayList<>();
-	
-						for (String ps : password) {
-							String oneHash = BCrypt.hashpw(ps, BCrypt.gensalt(logRounds));
-							ret.add(oneHash);
-						}
-			
-						return ret;
+					if (password == null || password.size() == 0) {
+						throw new IllegalArgumentException("Invalid password list input");
 					}
+
+					if (logRounds > 30 || logRounds < 4) {
+						throw new IllegalArgumentException("Invalid logRound");
+					}
+
+					
 	
 					// Offload to backend
 					List<String> hash = new ArrayList<String>();
 					boolean offloadSuccess = false;
-					System.out.println("Offload to backend for hash password.");
-					semaphore.acquire();
+					// semaphore.acquire();
 					while (!offloadSuccess) {
+						if (liveBE.size() == 0) {
+							System.out.println("There is not BE node. Hash Passward in FE");
+							List<String> ret = new ArrayList<>();
+		
+							for (String ps : password) {
+								String oneHash = BCrypt.hashpw(ps, BCrypt.gensalt(logRounds));
+								ret.add(oneHash);
+							}
+							offloadSuccess = true;
+							return ret;
+						}
+
 						BENode server = getBEServer();
 						TSocket sock = new TSocket(server.beHost, server.bePort);
 						TTransport transport = new TFramedTransport(sock);
 						TProtocol protocol = new TBinaryProtocol(transport);
 						BcryptService.Client client = new BcryptService.Client(protocol);
+						System.out.println("Offload to backend " + server.beHost + ":" + server.bePort + " for hash password.");
+						// Thread.sleep(1000);
 						try {
 							transport.open();
 							hash = client.hashPassword(password, logRounds);
@@ -80,9 +99,10 @@ public class FEHandler implements BcryptService.Iface {
 						} catch (TTransportException t) {
 							System.out.println("Failed connect to target BE, drop it.");
 							liveBE.remove(server);
+							System.out.println(t);
 						}
 					}
-					semaphore.release();		
+					// semaphore.release();		
 					return hash;
 				} catch (Exception e) {
 					throw new IllegalArgument(e.getMessage());
@@ -93,31 +113,42 @@ public class FEHandler implements BcryptService.Iface {
 	public List<Boolean> checkPassword(List<String> password, List<String> hash)
 			throws IllegalArgument, org.apache.thrift.TException {
 				try {
-					if (liveBE.size() == 0) {
-						System.out.println("There is not BE node. Hash Passward in FE");
-						List<Boolean> ret = new ArrayList<>();
-				
-						for (int i = 0; i < password.size(); i++) {
-							String onePwd = password.get(i);
-							String oneHash = hash.get(i);
-			
-							ret.add(BCrypt.checkpw(onePwd, oneHash));
-						}
-			
-						return ret;
+					if (password == null || password.size() == 0) {
+						throw new IllegalArgumentException("Invalid password list input");
 					}
+
+					if (password.size() != hash.size()) {
+						throw new IllegalArgumentException("The password and hash arguments of checkPassword are lists of unequal length");
+					}
+
+					
 	
 					// Offload to backend
 					List<Boolean> result = new ArrayList<Boolean>();
 					boolean offloadSuccess = false;
-					System.out.println("Offload to backend for check password.");
-					semaphore.acquire();
+					// semaphore.acquire();
 					while (!offloadSuccess) {
+						if (liveBE.size() == 0) {
+							System.out.println("There is not BE node. Hash Passward in FE");
+							List<Boolean> ret = new ArrayList<>();
+					
+							for (int i = 0; i < password.size(); i++) {
+								String onePwd = password.get(i);
+								String oneHash = hash.get(i);
+				
+								ret.add(BCrypt.checkpw(onePwd, oneHash));
+							}
+							offloadSuccess = true;
+							return ret;
+						}
+
 						BENode server = getBEServer();
 						TSocket sock = new TSocket(server.beHost, server.bePort);
 						TTransport transport = new TFramedTransport(sock);
 						TProtocol protocol = new TBinaryProtocol(transport);
 						BcryptService.Client client = new BcryptService.Client(protocol);
+						System.out.println("Offload to backend " + server.beHost + ":" + server.bePort + " for check password.");
+						// Thread.sleep(1000);
 						try {
 							transport.open();
 							// System.out.println("should not print !!!!!!!!!!!");
@@ -127,9 +158,10 @@ public class FEHandler implements BcryptService.Iface {
 						} catch (TTransportException t) {
 							System.out.println("Failed connect to target BE, drop it.");
 							liveBE.remove(server);
+							System.out.println(t);
 						}
 					}
-					semaphore.release();			
+					// semaphore.release();			
 					return result;					
 				} catch (Exception e) {
 					throw new IllegalArgument(e.getMessage());
@@ -137,12 +169,18 @@ public class FEHandler implements BcryptService.Iface {
 			}
 
 
-	public BENode getBEServer() {
+	public BENode getBEServer() throws Exception {
 		// int index = ThreadLocalRandom.current().nextInt(0, liveBE.size());
-		int index = taskNum % liveBE.size();
-		taskNum++;
-		System.out.println("liveBE size: " + liveBE.size());
-		System.out.println("We choose the # " + (index + 1) + " Backend server");
-		return liveBE.get(index);
+		try {
+			semaphore.acquire();
+			int index = taskNum % liveBE.size();
+			taskNum++;
+			System.out.println("liveBE size: " + liveBE.size());
+			System.out.println("We choose the # " + (index + 1) + " Backend server");
+			semaphore.release();
+			return liveBE.get(index);
+		} catch (Exception e) {
+			throw new Exception(e.getMessage());
+		}	
 	}
 }

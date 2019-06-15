@@ -21,8 +21,10 @@ public class BEHandler implements BcryptService.Iface {
             List<String> ret = new ArrayList<>();
 
 			for (String ps : password) {
+				
 				String oneHash = BCrypt.hashpw(ps, BCrypt.gensalt(logRounds));
 				ret.add(oneHash);
+				System.out.println(oneHash);
             }
             
             System.out.println("Time elapsed for hash passward: " + (System.currentTimeMillis() - startTime) + " ms");
@@ -44,8 +46,11 @@ public class BEHandler implements BcryptService.Iface {
 			for (int i = 0; i < password.size(); i++) {
 				String onePwd = password.get(i);
 				String oneHash = hash.get(i);
-
-				ret.add(BCrypt.checkpw(onePwd, oneHash));
+				try {
+					ret.add(BCrypt.checkpw(onePwd, oneHash));
+				} catch (Exception e) {
+					ret.add(false);
+				}
             }
             
             System.out.println("Time elapsed for checkPassword: " + (System.currentTimeMillis() - startTime) + " ms");

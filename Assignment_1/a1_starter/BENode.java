@@ -31,45 +31,55 @@ public class BENode {
 		}
 
 		// initialize log4j
-		BasicConfigurator.configure();
-		log = Logger.getLogger(BENode.class.getName());
+		try {
+			BasicConfigurator.configure();
+			log = Logger.getLogger(BENode.class.getName());
 
-		String hostFE = args[0];
-		int portFE = Integer.parseInt(args[1]);
-		int portBE = Integer.parseInt(args[2]);
-		log.info("Launching BE node on port " + portBE + " at host " + getHostName());
+			String hostFE = args[0];
+			int portFE = Integer.parseInt(args[1]);
+			int portBE = Integer.parseInt(args[2]);
+			log.info("Launching BE node on port " + portBE + " at host " + getHostName());
 
-		// Send heartbeat to FE
-		sendHeartBeatToClient(getHostName(), portBE, hostFE, portFE);
-		System.out.println("Successfully send heart beat to client");
+			// launch Thrift server
+			BcryptService.Processor processor = new BcryptService.Processor<BcryptService.Iface>(
+					new BEHandler());
+			TNonblockingServerSocket socket = new TNonblockingServerSocket(portBE);
+			THsHaServer.Args sargs = new THsHaServer.Args(socket);
+			sargs.protocolFactory(new TBinaryProtocol.Factory());
+			sargs.transportFactory(new TFramedTransport.Factory());
+			sargs.processorFactory(new TProcessorFactory(processor));
+			// sargs.maxWorkerThreads(64);
+			THsHaServer server = new THsHaServer(sargs);
 
-		// launch Thrift server
-		BcryptService.Processor processor = new BcryptService.Processor<BcryptService.Iface>(
-				new BEHandler());
-		TNonblockingServerSocket socket = new TNonblockingServerSocket(portBE);
-		THsHaServer.Args sargs = new THsHaServer.Args(socket);
-		sargs.protocolFactory(new TBinaryProtocol.Factory());
-		sargs.transportFactory(new TFramedTransport.Factory());
-		sargs.processorFactory(new TProcessorFactory(processor));
-		// sargs.maxWorkerThreads(64);
-		THsHaServer server = new THsHaServer(sargs);
+			// Send heartbeat to FE
+			sendHeartBeatToClient(getHostName(), portBE, hostFE, portFE);
+			System.out.println("Successfully send heart beat to client");
 
-		server.serve();
-		System.out.println("should appear");
+			server.serve();
+			System.out.println("should appear");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	static void sendHeartBeatToClient(String beHost, int bePort, String feHost, int fePort) {
-		try {
-			TSocket sock = new TSocket(feHost, fePort);
-			TTransport transport = new TFramedTransport(sock);
-			TProtocol protocol = new TBinaryProtocol(transport);
-			BcryptService.Client client = new BcryptService.Client(protocol);
-			transport.open();
-			client.beToFeRegistrar(beHost, bePort);
-			transport.close();
-		} catch (Exception e) {
-			// Do nothing
-		}
+		boolean heartBeatSuccess = false;
+
+		while (!heartBeatSuccess) {
+			try {
+				TSocket sock = new TSocket(feHost, fePort);
+				TTransport transport = new TFramedTransport(sock);
+				TProtocol protocol = new TBinaryProtocol(transport);
+				BcryptService.Client client = new BcryptService.Client(protocol);
+				transport.open();
+				client.beToFeRegistrar(beHost, bePort);
+				transport.close();
+				heartBeatSuccess = true;
+			} catch (Exception e) {
+				// Do nothing
+			}
+		}	
 	}
 
 	static String getHostName() {
