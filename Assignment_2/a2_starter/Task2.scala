@@ -10,7 +10,10 @@ object Task2 {
   }
 
   def main(args: Array[String]) {
-    val conf = new SparkConf().setAppName("Task 2")
+    val conf = new SparkConf()
+      .setAppName("Task 2")
+      .set("spark.default.parallelism", "1") // Force only one reducer
+
     val sc = new SparkContext(conf)
 
     val textFile = sc.textFile(args(0))
