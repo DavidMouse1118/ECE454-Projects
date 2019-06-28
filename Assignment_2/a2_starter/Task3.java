@@ -20,6 +20,7 @@ public class Task3 {
 
     public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
       String[] tokens = value.toString().split(",");
+
       for (int i = 1; i < tokens.length; i++) {
         if (tokens[i].equals("")) {
           continue;
@@ -36,11 +37,12 @@ public class Task3 {
 
     public void reduce(IntWritable key, Iterable<IntWritable> values, Context context)
         throws IOException, InterruptedException {
-
       int count = 0;
+
       for (IntWritable val : values) {
         count += val.get();
       }
+      
       result.set(count);
       context.write(key, result);
     }
