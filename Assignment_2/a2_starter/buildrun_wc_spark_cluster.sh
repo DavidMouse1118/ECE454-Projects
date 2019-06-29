@@ -18,11 +18,15 @@ echo --- Jarring
 $JAVA_HOME/bin/jar -cf SparkWC.jar SparkWC*.class
 
 echo --- Running
-INPUT=/tmp/smalldata.txt
+INPUT=/tmp/smalldata_z498zhan.txt
 OUTPUT=/user/${USER}/a2_starter_code_output/
 
 hdfs dfs -rm -R $OUTPUT
-hdfs dfs -copyFromLocal sample_input/smalldata.txt /tmp
+hdfs dfs -copyFromLocal sample_input/smalldata_z498zhan.txt /tmp
 time spark-submit --master yarn --class SparkWC SparkWC.jar $INPUT $OUTPUT
 
 hdfs dfs -ls $OUTPUT
+
+rm -rf output_spark
+mkdir output_spark/
+hdfs dfs -copyToLocal $OUTPUT/part* output_spark/
