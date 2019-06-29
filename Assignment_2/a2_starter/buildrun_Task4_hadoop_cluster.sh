@@ -17,7 +17,7 @@ echo --- Jarring
 $JAVA_HOME/bin/jar -cf Task4.jar Task4*.class
 
 echo --- Running
-INPUT=/tmp/in3.txt
+INPUT=/tmp/in2.txt
 OUTPUT=/user/${USER}/a2_starter_code_output/
 
 hdfs dfs -rm -R $OUTPUT
@@ -25,3 +25,7 @@ hdfs dfs -copyFromLocal -f sample_input/smalldata_z498zhan.txt /tmp
 time yarn jar Task4.jar Task4 $INPUT $OUTPUT
 
 hdfs dfs -ls $OUTPUT
+
+rm -rf output_hadoop
+mkdir output_hadoop/
+hdfs dfs -copyToLocal $OUTPUT/part* output_hadoop/

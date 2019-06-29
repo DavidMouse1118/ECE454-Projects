@@ -20,7 +20,7 @@ public class Task2 {
     private IntWritable one = new IntWritable(1);
 
     public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-      String[] tokens = value.toString().split(",");
+      String[] tokens = value.toString().split(",", -1);
     
       for (int i = 1; i < tokens.length; i++) {
         if (tokens[i].equals("")) {

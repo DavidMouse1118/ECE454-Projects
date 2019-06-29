@@ -4,7 +4,7 @@ import scala.collection.mutable.ArrayBuffer
 // please don't change the object name
 object Task3 {
   def userIdToRatingCount(line: String): ArrayBuffer[(Int, Int)] = {
-      val ratings = line.split(",")
+      val ratings = line.split(",", -1)
       var userRatingCount = ArrayBuffer[(Int, Int)]()
 
       for(i <- 1 until ratings.length){

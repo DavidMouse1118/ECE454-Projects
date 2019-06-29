@@ -3,7 +3,7 @@ import org.apache.spark.{SparkContext, SparkConf}
 // please don't change the object name
 object Task2 {
   def getMovieRatings(line: String): (Array[String]) = {
-    val tokens = line.split(",")
+    val tokens = line.split(",", -1)
     val ratings = tokens.slice(1, tokens.size)
 
     return ratings.filter(_ != "")

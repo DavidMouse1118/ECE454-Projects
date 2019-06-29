@@ -3,7 +3,7 @@ import scala.collection.mutable.ArrayBuffer
 
 object Task1 {
   def findHighestRatingUsers(movieRating: String): (String) = {
-    val tokens = movieRating.split(",")
+    val tokens = movieRating.split(",", -1)
     val movieTitle = tokens(0)
     val ratings = tokens.slice(1, tokens.size)
     val maxRating = ratings.max
