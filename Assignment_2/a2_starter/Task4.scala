@@ -27,7 +27,7 @@ object Task4 {
   def findSimilarity(ratings1: Array[Byte], ratings2: Array[Byte]): Int = {
     var similarity = 0
 
-    for(i <- 1 until ratings1.length){
+    for(i <- 0 until ratings1.length){
       if (ratings1(i) == ratings2(i) && ratings1(i) != 0) {
         similarity += 1
       }

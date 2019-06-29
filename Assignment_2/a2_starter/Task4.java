@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.StringTokenizer;
 
 import org.apache.hadoop.conf.Configuration;
@@ -14,10 +15,11 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.filecache.DistributedCache;
 import java.net.URI;
-import org.apache.hadoop.fs.FileSystem; 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.*;  
 
-// Performance: 14.48user 2.08system 13:05.92elapsed 2%CPU (0avgtext+0avgdata 410672maxresident)k
+// Performance: 11.59user 0.92system 0:49.22elapsed 25%CPU (0avgtext+0avgdata 401988maxresident)k
 public class Task4 {
 
   public static class MovieSimilarityMapper extends Mapper<Object, Text, Text, NullWritable> {
@@ -25,52 +27,52 @@ public class Task4 {
     private HashMap<String, Byte[]> movieRatingsMap = new HashMap<String, Byte[]>();
 
     public void setup(Context context) throws IOException, InterruptedException {
+      Path cachePath = context.getLocalCacheFiles()[0];
+      BufferedReader reader = new BufferedReader(new FileReader(cachePath.toString())); 
+      String line;
       
-      
+      while ((line = reader.readLine()) != null){
+        String[] tokens = line.split(",", -1);
+        String title = tokens[0];
+        Byte[] ratings = new Byte[tokens.length - 1];
 
-    }
-
-    public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-      URI[] cacheFiles = context.getCacheFiles();
-
-      if (cacheFiles != null && cacheFiles.length > 0) {
-        try {
-          String line = "";
-          FileSystem fs = FileSystem.get(context.getConfiguration());
-          Path getFilePath = new Path(cacheFiles[0].toString());
-
-          BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(getFilePath)));
-
-          while ((line = reader.readLine()) != null) {
-            if (value.toString().compareTo(line) < 0) {
-              String similarity = findMovieSimilarity(value.toString(), line);
-
-              result.set(similarity);
-              context.write(result, NullWritable.get());
-            }
+        for (int i = 0; i < ratings.length; i++) {
+          if (!tokens[i + 1].isEmpty()) {
+            ratings[i] = Byte.parseByte(tokens[i + 1]);
+          } else {
+            ratings[i] = 0;
           }
         }
 
-        catch (Exception e) {
-          System.out.println("Unable to read the File");
+        movieRatingsMap.put(title, ratings);
+      }
+    }
+
+    public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+      String title1 = value.toString().split(",", 2)[0];
+      Byte[] ratings1 = movieRatingsMap.get(title1);
+
+      for (String title2 : movieRatingsMap.keySet()) {
+        if (title2.compareTo(title1) > 0) {
+          Byte[] ratings2 = movieRatingsMap.get(title2);
+          int similarity = findSimilarity(ratings1, ratings2);
+
+          result.set(title1 + "," + title2 + "," + similarity);
+          context.write(result, NullWritable.get());
         }
       }
     }
 
-    public String findMovieSimilarity(String movie1, String movie2) {
-      String[] ratings1 = movie1.split(",");
-      String[] ratings2 = movie2.split(",");
-
-      String moviePair = ratings1[0] + "," + ratings2[0];
+    public int findSimilarity(Byte[] ratings1, Byte[] ratings2) {
       int similarity = 0;
 
-      for (int i = 1; i < Math.min(ratings1.length, ratings2.length); i++) {
-        if (ratings1[i].equals(ratings2[i]) == true && ratings1[i].equals("") == false) {
+      for (int i = 0; i < Math.min(ratings1.length, ratings2.length); i++) {
+        if (ratings1[i] == ratings2[i] && ratings1[i] != 0) {
           similarity ++;
         }
       }
 
-      return moviePair + ',' + similarity;
+      return similarity;
     }
   }
 
