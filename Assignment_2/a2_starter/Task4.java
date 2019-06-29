@@ -22,6 +22,13 @@ public class Task4 {
 
   public static class MovieSimilarityMapper extends Mapper<Object, Text, Text, NullWritable> {
     private Text result = new Text();
+    private HashMap<String, Byte[]> movieRatingsMap = new HashMap<String, Byte[]>();
+
+    public void setup(Context context) throws IOException, InterruptedException {
+      
+      
+
+    }
 
     public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
       URI[] cacheFiles = context.getCacheFiles();
