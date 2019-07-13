@@ -153,6 +153,7 @@ public class A3Client implements CuratorWatcher {
 		} catch (Exception e) {
 			log.error("Unable to determine primary");
 		}
+
 	}
 
 	class MyRunnable implements Runnable {

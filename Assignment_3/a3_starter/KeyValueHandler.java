@@ -1,6 +1,8 @@
-import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.*;
+import java.io.*;
+import java.net.*;
+import java.util.concurrent.atomic.*;
 
 import org.apache.thrift.*;
 import org.apache.thrift.server.*;
@@ -16,29 +18,31 @@ import org.apache.curator.framework.api.*;
 
 import org.apache.log4j.*;
 
-public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher {
+public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
     private Map<String, String> myMap;
     private CuratorFramework curClient;
     private String zkNode;
     private String host;
     private int port;
-    private volatile InetSocketAddress primaryAddress;
-    private volatile List<KeyValueService.Client> children;
+    private InetSocketAddress primaryAddress;
+    private List<InetSocketAddress> children;
     private static Logger log;
+    private Boolean isPrimary;
 
-    public KeyValueHandler(String host, int port, CuratorFramework curClient, String zkNode) throws Exception{
+    public KeyValueHandler(String host, int port, CuratorFramework curClient, String zkNode) throws Exception {
         this.host = host;
         this.port = port;
         this.curClient = curClient;
         this.zkNode = zkNode;
         log = Logger.getLogger(KeyValueHandler.class.getName());
         this.primaryAddress = getPrimary();
+        this.isPrimary = isPrimary(host, port);
         this.children = getChildren();
         myMap = new ConcurrentHashMap<String, String>();
     }
 
     public String get(String key) throws org.apache.thrift.TException {
-        System.out.println("Get key: " + key);
+        // System.out.println("Get key = " + key);
         String ret = myMap.get(key);
         if (ret == null)
             return "";
@@ -47,12 +51,11 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher {
     }
 
     public void put(String key, String value) throws org.apache.thrift.TException {
-        System.out.println("Put key = " + key + ", value = " + value);
+        // System.out.println("Put key = " + key + ", value = " + value);
         myMap.put(key, value);
 
         try {
-            if (isPrimary(host, port)) {
-                // log.info("It is the primary server. Writing to backup server ...");
+            if (isPrimary) {
                 writeToBackup(key, value);
             }
         } catch (Exception e) {
@@ -63,10 +66,12 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher {
 	public InetSocketAddress getPrimary() throws Exception {
         curClient.sync();
         List<String> children = curClient.getChildren().usingWatcher(this).forPath(zkNode);
+
         if (children.size() == 0) {
             log.error("No primary found");
             return null;
         }
+
         Collections.sort(children);
         byte[] data = curClient.getData().forPath(zkNode + "/" + children.get(0));
         String strData = new String(data);
@@ -74,9 +79,9 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher {
         log.info("Found primary " + strData);
         return new InetSocketAddress(primary[0], Integer.parseInt(primary[1]));
     }
-    
-    public List<KeyValueService.Client> getChildren() throws Exception {
-        List<KeyValueService.Client> children = new ArrayList<>();
+
+    public List<InetSocketAddress> getChildren() throws Exception {
+        List<InetSocketAddress> children = new ArrayList<>();
 
         if (primaryAddress != null && !isPrimary(host, port)) {
             return children;
@@ -102,23 +107,8 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher {
             }
 
             log.info("Found child " + strData);
-            log.info("Connecting to child " + strData);
             
-
-            try {
-				TSocket sock = new TSocket(childHost, childPort);
-				TTransport transport = new TFramedTransport(sock);
-				transport.open();
-				TProtocol protocol = new TBinaryProtocol(transport);
-				children.add(new KeyValueService.Client(protocol));
-			} catch (Exception e) {
-				log.error("Unable to connect to child " + strData);
-            }
-            
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
+            children.add(new InetSocketAddress(childHost, childPort));
         }
 
         return children;
@@ -130,10 +120,16 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher {
                 return;
             }
 
-            for (KeyValueService.Client child: children) {
-                child.put(key, value);
+            for (InetSocketAddress child: children) {
+				TSocket sock = new TSocket(child.getHostName(), child.getPort());
+				TTransport transport = new TFramedTransport(sock);
+				transport.open();
+				TProtocol protocol = new TBinaryProtocol(transport);
+				KeyValueService.Client client =  new KeyValueService.Client(protocol);
+                client.put(key, value);
+                // transport.close();
             }
-        } catch (Exception e) {
+        } catch (TTransportException e) {
             return;
         }
     }
@@ -143,12 +139,13 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher {
 		try {
             primaryAddress = getPrimary();
             children = getChildren();
+            this.isPrimary = isPrimary(host, port);
 		} catch (Exception e) {
 			log.error("Unable to determine primary or children");
 		}
     }
-    
+
     public Boolean isPrimary(String host, int port) {
-        return host.equals(primaryAddress.getHostName()) && port == primaryAddress.getPort();
+        return primaryAddress != null && host.equals(primaryAddress.getHostName()) && port == primaryAddress.getPort();
     }
 }

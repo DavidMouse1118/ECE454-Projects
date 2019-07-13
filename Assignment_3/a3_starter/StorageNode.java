@@ -50,6 +50,7 @@ public class StorageNode {
 
 		new Thread(new Runnable() {
 			public void run() {
+				// connect to 
 				server.serve();
 			}
 		}).start();
