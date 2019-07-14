@@ -17,6 +17,8 @@ import org.apache.curator.retry.*;
 import org.apache.curator.framework.*;
 import org.apache.curator.framework.api.*;
 
+import com.google.common.util.concurrent.Striped;
+
 import org.apache.log4j.*;
 
 public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
@@ -30,6 +32,8 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
     private Boolean isPrimary;
     private KeyValueService.Client backupClient;
     private ReadWriteLock lock = new ReentrantReadWriteLock();
+    private Striped<Semaphore> stripedSemaphores = Striped.semaphore(64, 1);
+    
 
     public KeyValueHandler(String host, int port, CuratorFramework curClient, String zkNode) throws Exception {
         this.host = host;
@@ -45,26 +49,39 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
 
     public String get(String key) throws org.apache.thrift.TException {
         // System.out.println("Get key = " + key);
-        String ret = myMap.get(key);
-        if (ret == null)
+        Semaphore stripedSemaphore  = stripedSemaphores.get(key);
+
+        try {
+            stripedSemaphore.acquire();
+
+            String ret = myMap.get(key);
+            if (ret == null)
+                return "";
+            else
+                return ret;
+        } catch (Exception e) {
             return "";
-        else
-            return ret;
+        }finally {
+            stripedSemaphore.release();
+        }
     }
 
     public void put(String key, String value) throws org.apache.thrift.TException {
-        lock.writeLock().lock();
         // System.out.println("Put key = " + key + ", value = " + value);
-        myMap.put(key, value);
+
+        Semaphore stripedSemaphore  = stripedSemaphores.get(key);
 
         try {
+            stripedSemaphore.acquire();
+            myMap.put(key, value);
+
             if (isPrimary && backupClient != null) {
                 writeToBackup(key, value);
             }
         } catch (Exception e) {
             return;
         } finally {
-            lock.writeLock().unlock();
+            stripedSemaphore.release();
         }
     }
 
@@ -97,7 +114,8 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
             log.error("No Backup found");
             return null;
         }
-        
+
+        Collections.sort(childrenKeys);
         byte[] data = curClient.getData().forPath(zkNode + "/" + childrenKeys.get(1));
         String strData = new String(data);
         String[] backupData = strData.split(":");
@@ -120,22 +138,38 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
 
         try {
             backupClient.put(key, value);
-        } catch (TTransportException e) {
+        } catch (Exception e) {
             return;
         } finally {
             lock.writeLock().unlock();
         }
     }
 
+    public void copyData(Map<String, String> data) throws org.apache.thrift.TException {
+        lock.writeLock().lock();
+        if (myMap == null) {
+            myMap = data;
+        }
+        lock.writeLock().unlock();
+    }
+
 	synchronized public void process(WatchedEvent event) {
+        lock.writeLock().lock();
+
 		log.info("ZooKeeper event " + event);
 		try {
             primaryAddress = getPrimary();
             isPrimary = isPrimary(host, port);
             backupClient = getBackupClient();
+
+            if (backupClient != null) {
+                backupClient.copyData(myMap);
+            }
 		} catch (Exception e) {
 			log.error("Unable to determine primary or children");
-		}
+		} finally {
+            lock.writeLock().unlock();
+        }
     }
 
     public Boolean isPrimary(String host, int port) {
