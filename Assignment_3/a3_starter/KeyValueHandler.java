@@ -33,7 +33,6 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
     private KeyValueService.Client backupClient;
     private ReadWriteLock lock = new ReentrantReadWriteLock();
     private Striped<Semaphore> stripedSemaphores = Striped.semaphore(64, 1);
-    
 
     public KeyValueHandler(String host, int port, CuratorFramework curClient, String zkNode) throws Exception {
         this.host = host;
