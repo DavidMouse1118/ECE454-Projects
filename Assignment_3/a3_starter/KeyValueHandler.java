@@ -33,6 +33,7 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
     private KeyValueService.Client backupClient;
     private ReadWriteLock lock = new ReentrantReadWriteLock();
     private Striped<Semaphore> stripedSemaphores = Striped.semaphore(64, 1);
+    private ConcurrentLinkedQueue<KeyValueService.Client> backupClients = new ConcurrentLinkedQueue<KeyValueService.Client>(); 
 
     public KeyValueHandler(String host, int port, CuratorFramework curClient, String zkNode) throws Exception {
         this.host = host;
@@ -43,6 +44,9 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
         this.primaryAddress = getPrimary();
         this.isPrimary = isPrimary(host, port);
         this.backupClient = getBackupClient();
+        this.backupClients = createBackupClients(64);
+        System.out.println("64 backup clients are created");
+        System.out.println(this.backupClients);
         myMap = new ConcurrentHashMap<String, String>();
     }
 
@@ -101,6 +105,39 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
         return new InetSocketAddress(primary[0], Integer.parseInt(primary[1]));
     }
 
+    public ConcurrentLinkedQueue<KeyValueService.Client> createBackupClients(int clientCounts) throws Exception {
+        ConcurrentLinkedQueue<KeyValueService.Client> backupClients = new ConcurrentLinkedQueue<KeyValueService.Client>();
+
+        curClient.sync();
+        List<String> childrenKeys = curClient.getChildren().usingWatcher(this).forPath(zkNode);
+
+        if (childrenKeys.size() <= 1) {
+            log.error("No Backup found");
+            return null;
+        }
+
+        Collections.sort(childrenKeys);
+        byte[] data = curClient.getData().forPath(zkNode + "/" + childrenKeys.get(1));
+        String strData = new String(data);
+        String[] backupData = strData.split(":");
+        String backupHost = backupData[0];
+        int backupPort = Integer.parseInt(backupData[1]);
+
+        log.info("Found backup " + strData);
+        log.info("Setting up backup client");
+
+        for(int i = 0; i < clientCounts; i++) {
+            TSocket sock = new TSocket(backupHost, backupPort);
+            TTransport transport = new TFramedTransport(sock);
+            transport.open();
+            TProtocol protocol = new TBinaryProtocol(transport);
+    
+            backupClients.add(new KeyValueService.Client(protocol));
+        }
+
+        return backupClients;
+    }
+
     public KeyValueService.Client getBackupClient() throws Exception {
         if (!isPrimary) {
             return null;
@@ -133,14 +170,16 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
     }
 
     public void writeToBackup(String key, String value) throws Exception {
-        lock.writeLock().lock();
+        // lock.writeLock().lock();
 
         try {
-            backupClient.put(key, value);
+            KeyValueService.Client currentBackupClient = backupClients.poll();
+            currentBackupClient.put(key, value);
+            backupClients.add(currentBackupClient);
         } catch (Exception e) {
             return;
         } finally {
-            lock.writeLock().unlock();
+            // lock.writeLock().unlock();
         }
     }
 
@@ -163,6 +202,9 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
 
             if (backupClient != null) {
                 backupClient.copyData(myMap);
+                backupClients = createBackupClients(64);
+                System.out.println(this.backupClients);
+                System.out.println("64 backup clients are created.");
             }
 		} catch (Exception e) {
 			log.error("Unable to determine primary or children");
