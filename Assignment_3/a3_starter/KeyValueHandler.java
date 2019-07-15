@@ -33,7 +33,9 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
     private KeyValueService.Client backupClient;
     private ReadWriteLock lock = new ReentrantReadWriteLock();
     private Striped<Semaphore> stripedSemaphores = Striped.semaphore(64, 1);
-
+    private volatile ConcurrentLinkedQueue<KeyValueService.Client> backupClients = new ConcurrentLinkedQueue<>();
+    private int clientNumber = 32;
+    
     public KeyValueHandler(String host, int port, CuratorFramework curClient, String zkNode) throws Exception {
         this.host = host;
         this.port = port;
@@ -43,6 +45,8 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
         this.primaryAddress = getPrimary();
         this.isPrimary = isPrimary(host, port);
         this.backupClient = getBackupClient();
+        this.backupClients = createBackupClients(clientNumber);
+        System.out.println(this.backupClients);
         myMap = new ConcurrentHashMap<String, String>();
     }
 
@@ -59,6 +63,8 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
             else
                 return ret;
         } catch (Exception e) {
+            e.printStackTrace();
+            // throw e;
             return "";
         }finally {
             stripedSemaphore.release();
@@ -67,7 +73,6 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
 
     public void put(String key, String value) throws org.apache.thrift.TException {
         // System.out.println("Put key = " + key + ", value = " + value);
-
         Semaphore stripedSemaphore  = stripedSemaphores.get(key);
 
         try {
@@ -78,78 +83,138 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
                 writeToBackup(key, value);
             }
         } catch (Exception e) {
-            return;
+            e.printStackTrace();
+            // throw e;
         } finally {
             stripedSemaphore.release();
         }
     }
 
 	public InetSocketAddress getPrimary() throws Exception {
-        curClient.sync();
-        List<String> children = curClient.getChildren().usingWatcher(this).forPath(zkNode);
-
-        if (children.size() == 0) {
-            log.error("No primary found");
-            return null;
+        try {
+            curClient.sync();
+            List<String> children = curClient.getChildren().usingWatcher(this).forPath(zkNode);
+    
+            if (children.size() == 0) {
+                log.error("No primary found");
+                return null;
+            }
+    
+            Collections.sort(children);
+            byte[] data = curClient.getData().forPath(zkNode + "/" + children.get(0));
+            String strData = new String(data);
+            String[] primary = strData.split(":");
+            log.info("Found primary " + strData);
+            return new InetSocketAddress(primary[0], Integer.parseInt(primary[1]));
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         }
+    }
 
-        Collections.sort(children);
-        byte[] data = curClient.getData().forPath(zkNode + "/" + children.get(0));
-        String strData = new String(data);
-        String[] primary = strData.split(":");
-        log.info("Found primary " + strData);
-        return new InetSocketAddress(primary[0], Integer.parseInt(primary[1]));
+    public ConcurrentLinkedQueue<KeyValueService.Client> createBackupClients(int clientCounts) throws Exception {
+        try {
+            ConcurrentLinkedQueue<KeyValueService.Client> backupClients = new ConcurrentLinkedQueue<KeyValueService.Client>();
+
+            curClient.sync();
+            List<String> childrenKeys = curClient.getChildren().usingWatcher(this).forPath(zkNode);
+    
+            if (childrenKeys.size() <= 1) {
+                log.error("No Backup found");
+                return backupClients;
+            }
+    
+            Collections.sort(childrenKeys);
+            byte[] data = curClient.getData().forPath(zkNode + "/" + childrenKeys.get(1));
+            String strData = new String(data);
+            String[] backupData = strData.split(":");
+            String backupHost = backupData[0];
+            int backupPort = Integer.parseInt(backupData[1]);
+    
+            log.info("Found backup " + strData);
+            log.info("Setting up backup client");
+    
+            for(int i = 0; i < clientCounts; i++) {
+                TSocket sock = new TSocket(backupHost, backupPort);
+                TTransport transport = new TFramedTransport(sock);
+                transport.open();
+                TProtocol protocol = new TBinaryProtocol(transport);
+        
+                backupClients.add(new KeyValueService.Client(protocol));
+            }
+    
+            return backupClients;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     public KeyValueService.Client getBackupClient() throws Exception {
-        if (!isPrimary) {
-            return null;
+        try {
+            if (!isPrimary) {
+                return null;
+            }
+    
+            curClient.sync();
+            List<String> childrenKeys = curClient.getChildren().usingWatcher(this).forPath(zkNode);
+    
+            if (childrenKeys.size() <= 1) {
+                log.error("No Backup found");
+                return null;
+            }
+    
+            Collections.sort(childrenKeys);
+            byte[] data = curClient.getData().forPath(zkNode + "/" + childrenKeys.get(1));
+            String strData = new String(data);
+            String[] backupData = strData.split(":");
+            String backupHost = backupData[0];
+            int backupPort = Integer.parseInt(backupData[1]);
+    
+            log.info("Found backup " + strData);
+            log.info("Setting up backup client");
+            
+            TSocket sock = new TSocket(backupHost, backupPort);
+            TTransport transport = new TFramedTransport(sock);
+            transport.open();
+            TProtocol protocol = new TBinaryProtocol(transport);
+    
+            return new KeyValueService.Client(protocol);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         }
-
-        curClient.sync();
-        List<String> childrenKeys = curClient.getChildren().usingWatcher(this).forPath(zkNode);
-
-        if (childrenKeys.size() <= 1) {
-            log.error("No Backup found");
-            return null;
-        }
-
-        Collections.sort(childrenKeys);
-        byte[] data = curClient.getData().forPath(zkNode + "/" + childrenKeys.get(1));
-        String strData = new String(data);
-        String[] backupData = strData.split(":");
-        String backupHost = backupData[0];
-        int backupPort = Integer.parseInt(backupData[1]);
-
-        log.info("Found backup " + strData);
-        log.info("Setting up backup client");
-        
-        TSocket sock = new TSocket(backupHost, backupPort);
-        TTransport transport = new TFramedTransport(sock);
-        transport.open();
-        TProtocol protocol = new TBinaryProtocol(transport);
-
-        return new KeyValueService.Client(protocol);
     }
 
     public void writeToBackup(String key, String value) throws Exception {
-        lock.writeLock().lock();
-
         try {
-            backupClient.put(key, value);
+            KeyValueService.Client currentBackupClient = null;
+
+            while(currentBackupClient == null) {
+                currentBackupClient = backupClients.poll();
+            }
+
+            currentBackupClient.put(key, value);
+            backupClients.add(currentBackupClient);
         } catch (Exception e) {
-            return;
-        } finally {
-            lock.writeLock().unlock();
+            e.printStackTrace();
+            throw e;
         }
     }
 
     public void copyData(Map<String, String> data) throws org.apache.thrift.TException {
         lock.writeLock().lock();
-        if (myMap == null) {
-            myMap = data;
+
+        try {
+            if (myMap == null) {
+                myMap = data;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            lock.writeLock().unlock();
         }
-        lock.writeLock().unlock();
     }
 
 	synchronized public void process(WatchedEvent event) {
@@ -163,9 +228,12 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
 
             if (backupClient != null) {
                 backupClient.copyData(myMap);
+                backupClients = createBackupClients(clientNumber);
+                System.out.println(this.backupClients);
+                System.out.println(clientNumber + " backup clients are created.");
             }
 		} catch (Exception e) {
-			log.error("Unable to determine primary or children");
+            log.error("Unable to determine primary or children");
 		} finally {
             lock.writeLock().unlock();
         }
