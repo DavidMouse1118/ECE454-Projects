@@ -33,7 +33,8 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
     private KeyValueService.Client backupClient;
     private ReadWriteLock lock = new ReentrantReadWriteLock();
     private Striped<Semaphore> stripedSemaphores = Striped.semaphore(64, 1);
-    private ConcurrentLinkedQueue<KeyValueService.Client> backupClients = new ConcurrentLinkedQueue<KeyValueService.Client>(); 
+    private ConcurrentLinkedQueue<KeyValueService.Client> backupClients = null; 
+    private int clientNumber = 1;
 
     public KeyValueHandler(String host, int port, CuratorFramework curClient, String zkNode) throws Exception {
         this.host = host;
@@ -44,14 +45,14 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
         this.primaryAddress = getPrimary();
         this.isPrimary = isPrimary(host, port);
         this.backupClient = getBackupClient();
-        this.backupClients = createBackupClients(64);
-        System.out.println("64 backup clients are created");
+        this.backupClients = createBackupClients(clientNumber);
+        System.out.println(clientNumber + " backup clients are created");
         System.out.println(this.backupClients);
         myMap = new ConcurrentHashMap<String, String>();
     }
 
     public String get(String key) throws org.apache.thrift.TException {
-        // System.out.println("Get key = " + key);
+        System.out.println("Get key = " + key);
         Semaphore stripedSemaphore  = stripedSemaphores.get(key);
 
         try {
@@ -70,8 +71,7 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
     }
 
     public void put(String key, String value) throws org.apache.thrift.TException {
-        // System.out.println("Put key = " + key + ", value = " + value);
-
+        System.out.println("Put key = " + key + ", value = " + value);
         Semaphore stripedSemaphore  = stripedSemaphores.get(key);
 
         try {
@@ -170,16 +170,18 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
     }
 
     public void writeToBackup(String key, String value) throws Exception {
-        // lock.writeLock().lock();
+        // Semaphore stripedSemaphore  = stripedSemaphores.get(key);
 
         try {
+            // stripedSemaphore.acquire();
+
             KeyValueService.Client currentBackupClient = backupClients.poll();
             currentBackupClient.put(key, value);
             backupClients.add(currentBackupClient);
         } catch (Exception e) {
             return;
         } finally {
-            // lock.writeLock().unlock();
+            // stripedSemaphore.release();
         }
     }
 
@@ -202,9 +204,9 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
 
             if (backupClient != null) {
                 backupClient.copyData(myMap);
-                backupClients = createBackupClients(64);
+                backupClients = createBackupClients(clientNumber);
                 System.out.println(this.backupClients);
-                System.out.println("64 backup clients are created.");
+                System.out.println(clientNumber + " backup clients are created.");
             }
 		} catch (Exception e) {
 			log.error("Unable to determine primary or children");
