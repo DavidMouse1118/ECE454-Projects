@@ -58,9 +58,9 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
 
         log = Logger.getLogger(KeyValueHandler.class.getName());
         this.isPrimary = isPrimary(host, port);
-        this.backupClients = createBackupClients(clientNumber);
-        System.out.println(this.backupClients);
-        System.out.println(clientNumber + " backup clients are created.");
+        // this.backupClients = createBackupClients(clientNumber);
+        // System.out.println(this.backupClients);
+        // System.out.println(clientNumber + " backup clients are created.");
 
         myMap = new ConcurrentHashMap<String, String>();
     }
@@ -130,14 +130,14 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
             List<String> children = curClient.getChildren().usingWatcher(this).forPath(zkNode);
     
             if (children.size() == 0) {
-                log.error("No primary found");
+                // log.error("No primary found");
                 return false;
             }
     
             Collections.sort(children);
             byte[] data = curClient.getData().forPath(zkNode + "/" + children.get(0));
             String strData = new String(data);
-            log.info("Found primary " + strData);
+            // log.info("Found primary " + strData);
             String[] primary = strData.split(":");
             String primaryHost = primary[0];
             int primaryPort = Integer.parseInt(primary[1]);
@@ -148,7 +148,7 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
                 isPrimary = true;
             }
 
-            log.info("Is Primary: " + isPrimary);
+            // log.info("Is Primary: " + isPrimary);
 
             return isPrimary;
         } catch (Exception e) {
@@ -160,7 +160,7 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
     public ConcurrentLinkedQueue<KeyValueService.Client> createBackupClients(int clientNumber) throws Exception {
         try {
             if (!isPrimary) {
-                System.out.println("This is Backup. No need to create backup client.");
+                // System.out.println("This is Backup. No need to create backup client.");
                 return null;
             }
 
@@ -168,7 +168,7 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
             List<String> childrenKeys = curClient.getChildren().usingWatcher(this).forPath(zkNode);
     
             if (childrenKeys.size() <= 1) {
-                log.info("This is primary. But there is no Backup found");
+                // log.info("This is primary. But there is no Backup found");
                 return null;
             }
     
@@ -179,8 +179,8 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
             String backupHost = backupData[0];
             int backupPort = Integer.parseInt(backupData[1]);
     
-            log.info("This is primary. Found backup " + strData);
-            log.info("Setting up " + clientNumber + " backup clients.");
+            // log.info("This is primary. Found backup " + strData);
+            // log.info("Setting up " + clientNumber + " backup clients.");
 
             ConcurrentLinkedQueue<KeyValueService.Client> backupClients = new ConcurrentLinkedQueue<KeyValueService.Client>();
     
@@ -215,14 +215,14 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
     }
 
 	synchronized public void process(WatchedEvent event) {
-		log.info("ZooKeeper event " + event);
+		// log.info("ZooKeeper event " + event);
 		try {
             isPrimary = isPrimary(host, port);
 
             if (isPrimary) {
                 backupClients = createBackupClients(clientNumber);
-                System.out.println("BackupClients: " + this.backupClients);
-                System.out.println(clientNumber + " backup clients are created.");
+                // System.out.println("BackupClients: " + this.backupClients);
+                // System.out.println(clientNumber + " backup clients are created.");
 
                 if (backupClients != null) {
                     KeyValueService.Client currentBackupClient = null;
@@ -235,13 +235,13 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
                     lock.lock();
                     currentBackupClient.copyData(myMap);
                     lock.unlock();
-                    System.out.println("Copy Data to backup Succeeded!");
+                    // System.out.println("Copy Data to backup Succeeded!");
 
                     backupClients.add(currentBackupClient);
                 }
             }
 		} catch (Exception e) {
-            log.error("Unable to determine primary or children");
+            // log.error("Unable to determine primary or children");
 		}
     }
 }
