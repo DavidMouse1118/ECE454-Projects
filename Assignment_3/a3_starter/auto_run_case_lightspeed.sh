@@ -51,19 +51,19 @@ while [ $SECONDS -lt $end ]; do
     kill -9 $primary
     # echo killed primary: $primary
     primary=$backup
-    sleep 1s
+    sleep 0.5s
     $JAVA_HOME/bin/java -Xmx2g StorageNode $(hostname) $KV_PORT $ZKSTRING /$USER &
     backup=$!
     # echo started backup: $backup
-    sleep 1s
+    sleep 0.5s
     kill -9 $primary
     # echo killed primary: $primary
     primary=$backup
-    sleep 1s
+    sleep 0.5s
     $JAVA_HOME/bin/java -Xmx2g StorageNode $(hostname) $KV_PORT2 $ZKSTRING /$USER &
     backup=$!
     # echo started backup: $backup
-    sleep 1s
+    sleep 0.5s
 done
 
 sleep 1s
