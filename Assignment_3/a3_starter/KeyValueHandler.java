@@ -58,13 +58,71 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
 
         log = Logger.getLogger(KeyValueHandler.class.getName());
         // Set up watcher
-        curClient.getChildren().usingWatcher(this).forPath(zkNode);
+        // copyDataFromPrimaryOnStartup();
         // this.isPrimary = isPrimary(host, port);
         // this.backupClients = createBackupClients(clientNumber);
         // System.out.println(this.backupClients);
         // System.out.println(clientNumber + " backup clients are created.");
 
-        myMap = new ConcurrentHashMap<String, String>();
+        // myMap = new ConcurrentHashMap<String, String>();
+    }
+
+    public void copyDataFromPrimaryOnStartup() throws org.apache.thrift.TException {
+        try {
+            curClient.sync();
+            List<String> children = curClient.getChildren().usingWatcher(this).forPath(zkNode);
+    
+            if (children.size() == 0) {
+                log.error("No data found");
+                log.info("Is primary: " + true);
+                this.isPrimary = true;
+                this.myMap = new ConcurrentHashMap<String, String>();
+                return;
+            } 
+
+            log.info("Is primary: " + false);
+            this.isPrimary = false;
+    
+            Collections.sort(children);
+            byte[] primaryData;
+
+            // if (children.size() > 1) {
+            //     System.out.println("There are more than 2 existing nodes.");
+            //     primaryData = curClient.getData().forPath(zkNode + "/" + children.get(children.size() - 1));
+            // } else {
+            //     primaryData = curClient.getData().forPath(zkNode + "/" + children.get(0));
+            // }
+            primaryData = curClient.getData().forPath(zkNode + "/" + children.get(0));
+
+            String strData = new String(primaryData);
+            log.info("Found primary " + strData);
+            String[] primary = strData.split(":");
+            String primaryHost = primary[0];
+            int primaryPort = Integer.parseInt(primary[1]);
+
+            TSocket sock = new TSocket(primaryHost, primaryPort);
+            TTransport transport = new TFramedTransport(sock);
+            transport.open();
+            TProtocol protocol = new TBinaryProtocol(transport);
+            KeyValueService.Client primaryClient = new KeyValueService.Client(protocol);
+
+            this.myMap = new ConcurrentHashMap<String, String>(primaryClient.getPrimaryData());
+            System.out.println(this.myMap);
+            System.out.println("Copy Data on startup Succeeded!");
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Map<String, String> getPrimaryData() throws org.apache.thrift.TException {
+        lock.lock();
+
+        try {
+            return this.myMap;
+        } finally {
+            lock.unlock();
+        }
     }
 
     // There is no need to lock the get operation
@@ -317,34 +375,34 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
                 String backupHost = backup[0];
                 int backupPort = Integer.parseInt(backup[1]);
 
-                // Copy data to backup
-                TSocket sock = new TSocket(backupHost, backupPort);
-                TTransport transport = new TFramedTransport(sock);
-                transport.open();
-                TProtocol protocol = new TBinaryProtocol(transport);
-                KeyValueService.Client backupClient = new KeyValueService.Client(protocol);
+                // // Copy data to backup
+                // TSocket sock = new TSocket(backupHost, backupPort);
+                // TTransport transport = new TFramedTransport(sock);
+                // transport.open();
+                // TProtocol protocol = new TBinaryProtocol(transport);
+                // KeyValueService.Client backupClient = new KeyValueService.Client(protocol);
 
                 lock.lock();
 
-                backupClient.copyData(this.myMap);
-                System.out.println("Copy Data to backup Succeeded!");
+                // backupClient.copyData(this.myMap);
+                // System.out.println("Copy Data to backup Succeeded!");
 
                 // Create 32 backup clients
                 this.backupClients = new ConcurrentLinkedQueue<KeyValueService.Client>();
     
                 for(int i = 0; i < clientNumber; i++) {
-                    sock = new TSocket(backupHost, backupPort);
-                    transport = new TFramedTransport(sock);
+                    TSocket sock = new TSocket(backupHost, backupPort);
+                    TTransport transport = new TFramedTransport(sock);
                     transport.open();
-                    protocol = new TBinaryProtocol(transport);
+                    TProtocol protocol = new TBinaryProtocol(transport);
             
                     this.backupClients.add(new KeyValueService.Client(protocol));
                 }
 
                 lock.unlock();
 
-                // System.out.println("BackupClients: " + this.backupClients);
-                // System.out.println(this.backupClients.size() + " backup clients are created.");
+                System.out.println("BackupClients: " + this.backupClients);
+                System.out.println(this.backupClients.size() + " backup clients are created.");
             } else {
                 // System.out.println("Does not have backup clients.");
                 this.backupClients = null;

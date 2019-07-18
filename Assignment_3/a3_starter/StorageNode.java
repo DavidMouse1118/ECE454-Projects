@@ -37,8 +37,8 @@ public class StorageNode {
 			}
 		});
 
-		KeyValueService.Processor<KeyValueService.Iface> processor = new KeyValueService.Processor<>(
-				new KeyValueHandler(args[0], Integer.parseInt(args[1]), curClient, args[3]));
+		KeyValueHandler handler = new KeyValueHandler(args[0], Integer.parseInt(args[1]), curClient, args[3]);
+		KeyValueService.Processor<KeyValueService.Iface> processor = new KeyValueService.Processor<>(handler);
 		TServerSocket socket = new TServerSocket(Integer.parseInt(args[1]));
 		TThreadPoolServer.Args sargs = new TThreadPoolServer.Args(socket);
 		sargs.protocolFactory(new TBinaryProtocol.Factory());
@@ -63,6 +63,7 @@ public class StorageNode {
 
 		String childPath = parentPath + "/ChildNode";
 		byte[] data = (hostname + ":" + port).getBytes();
+		handler.copyDataFromPrimaryOnStartup();
 		curClient.create().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(childPath, data);
 	}
 }

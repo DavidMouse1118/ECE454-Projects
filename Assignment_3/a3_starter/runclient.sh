@@ -8,7 +8,7 @@ export CLASSPATH=".:gen-java:lib/*"
 
 echo --- Running client
 # args: 4 threads, 5 seconds, keys drawn from a set of 1000
-$JAVA_HOME/bin/java A3Client $ZKSTRING /$USER 8 120 10000
+$JAVA_HOME/bin/java A3Client $ZKSTRING /$USER 8 20 10000
 
 echo --- Analyzing linearizability
 $JAVA_HOME/bin/java ca.uwaterloo.watca.LinearizabilityTest execution.log scores.txt > /dev/null
