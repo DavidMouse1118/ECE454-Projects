@@ -120,7 +120,14 @@ public class A3Client implements CuratorWatcher {
 				continue;
 			}
 			Collections.sort(children);
-			byte[] data = curClient.getData().forPath(zkNode + "/" + children.get(0));
+			byte[] data;
+
+			if (children.size() > 2) {
+				data = this.curClient.getData().forPath(this.zkNode + "/" + children.get(children.size() - 2));
+			} else {
+				data = this.curClient.getData().forPath(this.zkNode + "/" + children.get(0));
+			}
+
 			String strData = new String(data);
 			String[] primary = strData.split(":");
 			log.info("Found primary " + strData);
