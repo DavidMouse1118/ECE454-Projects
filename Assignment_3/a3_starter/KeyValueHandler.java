@@ -43,7 +43,30 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
 
         log = Logger.getLogger(KeyValueHandler.class.getName());
         // Set up watcher
-        curClient.getChildren().usingWatcher(this).forPath(zkNode);
+        curClient.sync();
+        List<String> children = curClient.getChildren().usingWatcher(this).forPath(zkNode);
+
+        if (children.size() == 1) {
+            // System.out.println("Is Primary: " + true);
+            this.isPrimary = true;
+        } else {
+            // Find primary data and backup data
+            Collections.sort(children);
+            byte[] backupData = curClient.getData().forPath(zkNode + "/" + children.get(children.size() - 1));
+            String strBackupData = new String(backupData);
+            String[] backup = strBackupData.split(":");
+            String backupHost = backup[0];
+            int backupPort = Integer.parseInt(backup[1]);
+
+            // Check if this is primary
+            if (backupHost.equals(host) && backupPort == port) {
+                // System.out.println("Is Primary: " + false);
+                this.isPrimary = false;
+            } else {
+                // System.out.println("Is Primary: " + true);
+                this.isPrimary = true;
+            }
+        }
 
         myMap = new ConcurrentHashMap<String, String>();
     }
@@ -130,46 +153,32 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
             // Get all the children
             curClient.sync();
             List<String> children = curClient.getChildren().usingWatcher(this).forPath(zkNode);
+
+            if (children.size() == 1) {
+                // System.out.println("Is Primary: " + true);
+                this.isPrimary = true;
+                return;
+            }
             
             // Find primary data and backup data
             Collections.sort(children);
-            byte[] primaryData = null;
-            byte[] backupData = null;
-            
-            if (children.size() > 2) {
-                // System.out.println("There are more than 2 nodes.");
-                primaryData = curClient.getData().forPath(zkNode + "/" + children.get(children.size() - 2));
-                backupData = curClient.getData().forPath(zkNode + "/" + children.get(children.size() - 1));
-            } else {
-                primaryData = curClient.getData().forPath(zkNode + "/" + children.get(0));
-                if (children.size() == 2) {
-                    backupData = curClient.getData().forPath(zkNode + "/" + children.get(1));
-                }
-            }
-            
-            String strPrimaryData = new String(primaryData);
-            String[] primary = strPrimaryData.split(":");
-            String primaryHost = primary[0];
-            int primaryPort = Integer.parseInt(primary[1]);
-            
+            byte[] backupData = curClient.getData().forPath(zkNode + "/" + children.get(children.size() - 1));
+            String strBackupData = new String(backupData);
+            String[] backup = strBackupData.split(":");
+            String backupHost = backup[0];
+            int backupPort = Integer.parseInt(backup[1]);
+
             // Check if this is primary
-            if (primaryHost.equals(host) && primaryPort == port) {
-                // System.out.println("Is Primary: " + true);
-                this.isPrimary = true;
-            } else {
+            if (backupHost.equals(host) && backupPort == port) {
                 // System.out.println("Is Primary: " + false);
                 this.isPrimary = false;
+            } else {
+                // System.out.println("Is Primary: " + true);
+                this.isPrimary = true;
             }
             
-            
-            if (this.isPrimary && backupData != null) {
+            if (this.isPrimary && this.backupClients == null) {
                 System.out.println("Copying Data to backup >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-                // System.out.println("Does have backup clients.");
-                String strBackupData = new String(backupData);
-                String[] backup = strBackupData.split(":");
-                String backupHost = backup[0];
-                int backupPort = Integer.parseInt(backup[1]);
-
                 // Create first backup client for data transfer
                 KeyValueService.Client firstBackupClient = null;
 
