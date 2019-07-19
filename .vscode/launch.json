@@ -1,0 +1,62 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Debug (Launch) - Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-BarrierExample",
+            "request": "launch",
+            "mainClass": "BarrierExample"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Driver",
+            "request": "launch",
+            "mainClass": "Driver"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-FENode",
+            "request": "launch",
+            "mainClass": "FENode"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-HadoopWC",
+            "request": "launch",
+            "mainClass": "HadoopWC"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Helper",
+            "request": "launch",
+            "mainClass": "Helper"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-SentimentAnalysis",
+            "request": "launch",
+            "mainClass": "SentimentAnalysis"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-UnitMultiplication",
+            "request": "launch",
+            "mainClass": "UnitMultiplication"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-UnitSum",
+            "request": "launch",
+            "mainClass": "UnitSum"
+        }
+    ]
+}
