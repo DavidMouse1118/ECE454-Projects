@@ -121,7 +121,7 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
     
     public void copyData(Map<String, String> data) throws org.apache.thrift.TException {
         this.myMap = new ConcurrentHashMap<String, String>(data); 
-        System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Copy Data to backup Succeeded!");
+        // System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Copy Data to backup Succeeded!");
     }
     
 	synchronized public void process(WatchedEvent event) throws org.apache.thrift.TException {
@@ -163,7 +163,7 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
             
             
             if (this.isPrimary && backupData != null) {
-                System.out.println("Copying Data to backup >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+                // System.out.println("Copying Data to backup >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
                 // System.out.println("Does have backup clients.");
                 String strBackupData = new String(backupData);
                 String[] backup = strBackupData.split(":");
