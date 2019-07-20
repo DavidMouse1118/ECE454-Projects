@@ -34,7 +34,7 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
     private Striped<Lock> stripedLock = Striped.lock(64);
     private volatile ConcurrentLinkedQueue<KeyValueService.Client> backupClients = null;
     private int clientNumber = 32;
-    
+
     public KeyValueHandler(String host, int port, CuratorFramework curClient, String zkNode) throws Exception {
         this.host = host;
         this.port = port;
@@ -69,6 +69,10 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
         }
 
         myMap = new ConcurrentHashMap<String, String>();
+    }
+
+    public void setPrimary(boolean isPrimary) throws org.apache.thrift.TException {
+        this.isPrimary = isPrimary;
     }
 
     // There is no need to lock the get operation
@@ -144,6 +148,7 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
     
     public void copyData(Map<String, String> data) throws org.apache.thrift.TException {
         this.myMap = new ConcurrentHashMap<String, String>(data); 
+        System.out.println(this.myMap.size());
         System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Copy Data to backup Succeeded!");
     }
     
@@ -197,6 +202,7 @@ public class KeyValueHandler implements KeyValueService.Iface, CuratorWatcher{
                 // Copy data to backup
                 globalLock.lock();
                 
+                System.out.println(this.myMap.size());
                 firstBackupClient.copyData(this.myMap);
 
                 // Create 32 backup clients
