@@ -6,6 +6,9 @@
 
 source ./settings.sh
 
+bash reset_topics.sh
+bash reset_app.sh
+
 echo --- Cleaning
 rm -f A4*.class
 

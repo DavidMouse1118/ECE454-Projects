@@ -15,29 +15,28 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import java.util.Arrays;
 import java.util.Properties;
 
-
 public class ResetApplication {
 
-    public static void main(String[] args) throws Exception {
-	// do not modify the structure of the command line
-	String bootstrapServers = args[0];
-	String appName = args[1];
-	String studentTopic = args[2];
-	String classroomTopic = args[3];
-	String outputTopic = args[4];
-	String stateStoreDir = args[5];
+	public static void main(String[] args) throws Exception {
+		// do not modify the structure of the command line
+		String bootstrapServers = args[0];
+		String appName = args[1];
+		String studentTopic = args[2];
+		String classroomTopic = args[3];
+		String outputTopic = args[4];
+		String stateStoreDir = args[5];
 
-        Properties props = new Properties();
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, appName);
-        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-	props.put(StreamsConfig.STATE_DIR_CONFIG, stateStoreDir);
+		Properties props = new Properties();
+		props.put(StreamsConfig.APPLICATION_ID_CONFIG, appName);
+		props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+		props.put(StreamsConfig.STATE_DIR_CONFIG, stateStoreDir);
 
-        StreamsBuilder builder = new StreamsBuilder();
+		StreamsBuilder builder = new StreamsBuilder();
 
-        KafkaStreams streams = new KafkaStreams(builder.build(), props);
+		KafkaStreams streams = new KafkaStreams(builder.build(), props);
 
-	streams.cleanUp();
+		streams.cleanUp();
 
-	streams.close();
-    }
+		streams.close();
+	}
 }
