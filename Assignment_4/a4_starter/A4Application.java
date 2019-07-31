@@ -15,6 +15,7 @@ import org.apache.kafka.streams.state.KeyValueStore;
 
 import java.util.Arrays;
 import java.util.Properties;
+import org.apache.commons.lang3.StringUtils;
 
 
 public class A4Application {
@@ -70,30 +71,20 @@ public class A4Application {
 			.aggregate(
 				() -> null,
 				(key, newValue, oldValue) -> {
-					if (oldValue == null) {
-						return newValue + "," + null;
-					} 
-					
-					// System.out.println("newValue" + newValue);
-					// System.out.println("oldValue" + oldValue);
-
 					int newOccupancy = Integer.parseInt(newValue.split(",")[0]);
 					int newCapacity = Integer.parseInt(newValue.split(",")[1]);
 
-					// Exceed the current capacity, return the new occupancy
 					if (newOccupancy > newCapacity) {
-						return newValue + "," + newOccupancy;
-					}
-
-					int oldOccupancy = Integer.parseInt(oldValue.split(",")[0]);
-					int oldCapacity = Integer.parseInt(oldValue.split(",")[1]);
-
-					// Does not exceed the current capacity, check previous state
-					// if previous state is not ok, return ok
-					if (oldOccupancy > oldCapacity) {
-						return newValue + "," + "OK"; 
+						// Exceed the current capacity, return the new occupancy
+						return String.valueOf(newOccupancy);
 					} else {
-						return newValue + "," + null;
+						// Does not exceed the current capacity, check previous state
+						// if previous state is not ok, return OK
+						if (StringUtils.isNumeric(oldValue)) {
+							return "OK"; 
+						} else {
+							return null;
+						}
 					}
 				}
 			);
@@ -101,10 +92,7 @@ public class A4Application {
 		Serde<String> stringSerde = Serdes.String();
 
 		output.toStream()
-			.mapValues((value) -> value.split(",")[2])
-			.filter((key, value) -> {
-				return !value.equals("null");
-			})
+			.filter((key, value) -> value != null)
 			.to(outputTopic, Produced.with(stringSerde, stringSerde));
 
 
